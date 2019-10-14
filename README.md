@@ -47,6 +47,7 @@
   4. ```argv```(argv[0]의 주소)와 ```argc```를 순서대로 push한다.
   5. 가짜 "return address"를 push한다.
    > entry function은 절대 return되지 않지만, 그것의 스택프레임은 다른 프레임 구조와 동일해야한다.
+   >> docs p.37의 스택테이블 참조하기
   
 ### 1. Process Termination Messages
 
