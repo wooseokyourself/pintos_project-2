@@ -40,7 +40,7 @@
 ```C
 char* strtok_r (char *s, const char *delimiters, char **save_ptr)
  /* s는 분리하고자 하는 문자열, delimiters는 구분자(무엇을 기준으로 분리할것인가). 여기에서 분리자를 공백으로 줘야 한다.
-    save_ptr은 함수 내에서 토큰이 추출된 디 남은 녀석을 가리키기 위한 것이다. 
+    save_ptr은 함수 내에서 토큰이 추출된 뒤 남은 녀석을 가리키기 위한 것이다. 
     사용에 대한 자세한 예제는 https://codeday.me/ko/qa/20190508/495336.html 참조. */
  ```
  
@@ -75,6 +75,8 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
   
   > ```load (const char *file_name, void (**eip) (void), void **esp)``` 안에서 ```setup_stack (esp)```를 통해 스택포인터, 즉 스택을 초기화(이를 통해 esp는 ```PHYS_BASE```로 초기화됨).
   
+  #### Argument Passing 구현계획
+  > ```process_execute에서
   
 -----------------------------------
 
