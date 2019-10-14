@@ -98,6 +98,10 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
   
   >> ```setup_stack ()``` 내에서, argument로 받은 ```argv, argc```를 스택에 push한다.
   
+  >> 스택은 다음의 꼬라지와 같다.
+  
+  >>> 
+  
 -----------------------------------
 
 ### 1. Process Termination Messages
