@@ -76,8 +76,9 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
   > ```load (const char *file_name, void (**eip) (void), void **esp)``` 안에서 ```setup_stack (esp)```를 통해 스택포인터, 즉 스택을 초기화(이를 통해 esp는 ```PHYS_BASE```로 초기화됨).
   
   #### Argument Passing 구현계획
-  > ```process_execute에서
+  > ```process_execute()```에서 ```thread_create()```를 호출하기 전 파일 이름을 ```strtok_r```을 통해 토큰화한 뒤, 이를 ```thread_create()```의 첫 번째 인자로 넣어준다.
   
+  > ```load()```의 첫번째 argument는 
 -----------------------------------
 
 ### 1. Process Termination Messages
