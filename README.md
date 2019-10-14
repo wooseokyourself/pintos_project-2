@@ -100,7 +100,7 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
   
   >> 스택은 다음의 꼬라지와 같다.
   
-  >>> <div><img width="200" src="https://user-images.githubusercontent.com/49421142/66751949-37982380-eecb-11e9-9764-78b9f73561af.png">
+  >>> <div><img width="1000" src="https://user-images.githubusercontent.com/49421142/66751949-37982380-eecb-11e9-9764-78b9f73561af.png">
 
   
 -----------------------------------
