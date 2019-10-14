@@ -42,8 +42,8 @@
   2. 위 단어들을 스택의 가장 위에 넣는다. (포인터로 참조되므로 각 단어의 순서는 중요하지 않다.)
   3. 각 단어(string)의 주소와 null pointer sentinel 을 스택에 push한다. (right-to-left 순서로)
    > 이 녀석들은 모두 ```argv``` 의 elements 다. null pointer sentinel은 ```argv[argc]```가 널포인터일 경우를 대비한 것이다(C standard).
-    이 순서는 ```argv[0]```이 가장 낮은 virtual address에 있도록 한다.
-    첫 번째 push 전에 스택포인터를 4의 배수로 내린다.
+   > 이 순서는 ```argv[0]```이 가장 낮은 virtual address에 있도록 한다.
+   > 첫 번째 push 전에 스택포인터를 4의 배수로 내린다.
   4. ```argv```(argv[0]의 주소)와 ```argc```를 순서대로 push한다.
   5. 가짜 "return address"를 push한다.
    > entry function은 절대 return되지 않지만, 그것의 스택프레임은 다른 프레임 구조와 동일해야한다.
