@@ -64,6 +64,7 @@
   > ```start_process (void *file_name_)``` 안에서 유저프로그램 ```load(file_name, &if_.eip, &if_.esp)```.
   >> ```eip```는 실행할 명령의 주소, ```esp```는 현재 진행하는 함수의 제일 아래부분의 스택포인터이다.
   >> 여기에서 파일이 실행가능하다면, ```intr_exit```(in "threads/intr-stubs.S") 인터럽트로부터의 리턴을 시뮬레이션(?)하여 유저프로세스를 실행함. 이 ```intr_exit```은 스택의 모든 arguments를 ```struct intr_frame``` 형식으로 가져오기 때문에, 우리는 스택포인터(```&esp```)를 우리의 스택프레임으로 가리키게 한 다음에 그것을 점프한다(?).
+  > ```load (const char *file_name, void (**eip) (void), void **esp)``` 안에서 ```setup_stack (esp)```를 통해 스택포인터, 즉 스택을 초기화(이를 통해 esp는 ```PHYS_BASE```로 초기화됨).
   
   
 -----------------------------------
