@@ -37,6 +37,11 @@
  > 내가 원하는 방식으로 argument strings를 parse 할 수 있다. 감이 안 잡힌다면, 
  "lib/string.h" 에 프로토타입이 있는 ```strtoc_r()``` 을 살펴보십시오.
  매뉴얼을 보면 자세한 내용을 알 수 있습니다(프롬프트에서 man strtok_r 실행).
+ ```char* strtok_r (char *s, const char *delimiters, char **save_ptr)
+ /* s는 분리하고자 하는 문자열, delimiters는 구분자(무엇을 기준으로 분리할것인가). 여기에서 분리자를 공백으로 줘야 한다.
+    save_ptr은 함수 내에서 토큰이 추출된 디 남은 녀석을 가리키기 위한 것이다. 
+    사용에 대한 자세한 예제는 https://codeday.me/ko/qa/20190508/495336.html 참조. */```
+ 
  
  #### 1.1. Program Startup Details (docs p.36)
  ```'/bin/ls -l foo bar'```라는 command는 어떻게 다뤄지는가?
