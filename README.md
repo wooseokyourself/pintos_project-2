@@ -49,10 +49,12 @@
    > entry function은 절대 return되지 않지만, 그것의 스택프레임은 다른 프레임 구조와 동일해야한다.
    >> docs p.37의 스택테이블 참조하기
    
- #### 1.2. Stack(User virtual memory)
+ #### 1.2. Stack(User virtual memory) (레이아웃은 docs p.26)
   - virtual address 0 up to ```PHYS_BASE``` (which is defined in "threads/vaddr.h") and defaults to ```0xc0000000```(3GB).
   - Kernel virtual memory가 나머지 virtual address space를 점유한다.
   - 프로세스당 하나를 할당받는다. 커널이 프로세스를 switch하면, 프로세서의 page directory base register를 바꾸면서 user virtual address spaces도 함께 switch한다. (```pagedir_activate()``` in "userprog/pagedir.c")
+  - 유저프로그램은 본인의 user virtual memory에만 접근할 수 있다. 나머지는 예외처리된다. 커널은 현재 실행중인 유저프로세스의 virtual memory에도 접근할 수 있다.
+  - 유저스택의 사이즈는 고정되어있다. 이는 Project3 에서 확장할 것이다.
   
 ### 1. Process Termination Messages
 
