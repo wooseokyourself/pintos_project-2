@@ -334,9 +334,16 @@ load (const char *file_name, void (**eip) (void), void **esp)
         }
     }
 
-  /* Set up stack. */
+  /* REMOVE 
   if (!setup_stack (esp))
     goto done;
+  */
+
+ /* PLAN
+  // set up stack
+  if (!setup_stack (esp, argv, argc))
+    goto done;
+ */
 
   /* Start address. */
   *eip = (void (*) (void)) ehdr.e_entry;
@@ -471,6 +478,9 @@ setup_stack (void **esp)
       success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
       if (success)
         *esp = PHYS_BASE;
+        /* PLAN
+          여기에 스택 push 구현해야함
+        */
       else
         palloc_free_page (kpage);
     }
