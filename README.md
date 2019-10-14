@@ -79,7 +79,11 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
   #### Argument Passing 구현계획
   > ```process_execute()```에서 ```thread_create()```를 호출하기 전 파일 이름을 ```strtok_r```을 통해 토큰화한 뒤, 이를 ```thread_create()```의 첫 번째 인자로 넣어준다.
   
-  > ```load()```의 첫번째 argument는 
+  > ```process_execute()```에서 ```thread_create()```를 호출할 때 ```start_process (void *file_name_)```이 호출된다(이 때 ```file_name```은 ```thread_create()```에 argument로 전달된 토큰이 아닌 ```process_execute()```의 argument로 전달된 ```file_name```이다). 이후 ```start_process()``` 내에서 ```load (file_name, &if_.eip, &if_.esp)``` 를 호출하는데, 이 때 argument로 전달되는 ```file_name```은 역시 토큰이 아닌 그냥 생짜 ```file_name```이다.
+  
+  > ```load (const char *file_name, void (**eip) (void), void **esp)``` 에서 실질적으로 파일을 여는데,이 때 전달된 ```file_name```을 ```file_name```의 첫번째 토큰으로 변경해야 한다.
+  
+  > ```load ()```
 -----------------------------------
 
 ### 1. Process Termination Messages
