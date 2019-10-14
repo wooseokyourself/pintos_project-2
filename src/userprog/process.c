@@ -39,7 +39,16 @@ process_execute (const char *file_name)
   strlcpy (fn_copy, file_name, PGSIZE); /* fn_copy 에 file_name 을 복사, 단 PGSIZE 사이즈를 넘으면 안됨. */
 
   /* Create a new thread to execute FILE_NAME. */
+
+  /* REMOVE
   tid = thread_create (file_name, PRI_DEFAULT, start_process, fn_copy);
+  */
+
+  /* PLAN
+  token = strtok_r(file_name, " ", &save_ptr);
+  tid = thread_create (token, PRI_DEFAULT, start_process, fn_copy);
+  */
+ 
   if (tid == TID_ERROR)
     palloc_free_page (fn_copy); 
   return tid;
