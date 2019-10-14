@@ -41,6 +41,7 @@
 char* strtok_r (char *s, const char *delimiters, char **save_ptr)
  /* s는 분리하고자 하는 문자열, delimiters는 구분자(무엇을 기준으로 분리할것인가). 여기에서 분리자를 공백으로 줘야 한다.
     save_ptr은 함수 내에서 토큰이 추출된 뒤 남은 녀석을 가리키기 위한 것이다. 
+    즉 strtok_r의 리턴은 s의 가장 앞에 있는 녀석이고, 이후 두번째 녀석에 접근하고 싶다면 두 번째 strtok 호출 전 s = save_ptr 해줘야 한다.
     사용에 대한 자세한 예제는 https://codeday.me/ko/qa/20190508/495336.html 참조. */
  ```
  
