@@ -8,7 +8,9 @@
 
 ###### 궁금한점 1. 유저프로그램을 돌리는 스레드가 프로젝트 1에서 건드린 스레드와 동일한 스레드인가? 그게 맞다면 그냥 thread_exit() 함수에서 print 코드를 추가하면 되는 것 아닐까?
 > process.h 에 정의된 함수는 네 개 이다.
+
 <pre><code>
+
 tid_t process_execute (const char *file_name);
 /* 유저프로그램을 실행하는 새로운 스레드를 시작한다. 새로운 스레드는 process_execute()가
    리턴되기 전에 스케쥴링되고 종료된다.
@@ -24,5 +26,10 @@ int process_wait (tid_t);
    이 함수는 problem 2-2에서 구현되어야 한다. */
 
 void process_exit (void);
+/* 현재 프로세스의 메모리를 release한다(free). */
+
 void process_activate (void);
+/* 현재 스레드에서 유저코드를 실행시키기 위해 CPU를 셋팅한다.
+   이 함수는 매 context switch마다 호출된다. */
+   
 </code></pre>
