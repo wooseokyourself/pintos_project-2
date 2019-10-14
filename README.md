@@ -13,7 +13,29 @@
  or you can use a more complex mapping. It’s up to you.
 
 # Pintos Project2
+핀토스는 아래와 같은 구현순서를 추천하고 있다.
+ - Argument passing
+ - User memory access
+ - System call infrastructure
+ - The ```exit``` system call
+ - The ```write``` system call for writing to fd 1, the system console
+ - Change ```process_wait()``` to an infinite loop.
 
+이 녀석들을 차근차근 살펴보자.
+### 1. Argument passing
+ > 현재 ```process_execute()```는 새로운 프로세스에 대해 passing arguments를 지원하지 않고 있다.
+ 이 함수를 확장하여, 프로그램 파일 이름을 argument로 사용하는 대신 공백으로 단어로 나누는 기능을 구현해라.
+ 첫 번째 단어는 프로그램 이름이고 두 번째 단어는 첫 번째 argument이다. 즉,
+ ```process_execute ("grep foo bar")``` 는 두 개의 arguments ```foo``` 및 ```bar```를 전달하여 ```grep```을 실행해야 한다.
+ 
+ > command line 에서 여러 공백은 단일 공백과 동일하므로 ```process_execute ("grep foo bar")``` 는 원래 예제와 동일하다.
+ command line argument의 길이에 제한을 둘 수 있다. 가령 argument를 단일 페이지(4kB)에 맞는 argument로.
+ (핀토스 유틸리티가 커널에 전달할 수 있는 명령행 인수에는 128바이트 관련 제한이 없긴 하다).
+ 
+ > 내가 원하는 방식으로 argument strings를 parse 할 수 있다. 감이 안 잡힌다면, 
+ "lib/string.h" 에 프로토타입이 있는 ```strtoc_r()``` 을 살펴보십시오.
+ 매뉴얼을 보면 자세한 내용을 알 수 있습니다(프롬프트에서 man strtok_r 실행).
+ 
 ### 1. Process Termination Messages
 
  - 어떠한 이유로든간에 user program이 종료되면, 해당 프로세스의 이름과 exit_code를 출력하기.
