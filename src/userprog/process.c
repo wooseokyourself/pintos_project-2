@@ -45,10 +45,10 @@ process_execute (const char *file_name)
   */
 
   /* PLAN
-  token = strtok_r(file_name, " ", &save_ptr);
+  char* token = strtok_r(file_name, " ", &save_ptr);
   tid = thread_create (token, PRI_DEFAULT, start_process, fn_copy);
   */
- 
+
   if (tid == TID_ERROR)
     palloc_free_page (fn_copy); 
   return tid;
@@ -223,7 +223,20 @@ load (const char *file_name, void (**eip) (void), void **esp)
   off_t file_ofs;
   bool success = false;
   int i;
+  /* PLAN
+  char* temp_file_name = palloc_get_page(0);
+  strcpy(temp_file_name, file_name, PGSIZE);
+  
+  char** argv;
+  int argc = 0;
 
+  // argv[0] = 프로그램의 경로
+  argv[0] = strtok_r (temp_file_name, " ", &save_ptr);
+
+  // argv[1] = 첫 번째 인자
+  // argv[2] = 두 번째 인자
+  
+  */
   /* Allocate and activate page directory. */
   t->pagedir = pagedir_create ();
   if (t->pagedir == NULL) 
