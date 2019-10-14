@@ -48,6 +48,6 @@ void process_activate (void);
    이 함수는 매 context switch마다 호출된다. */
 
 ```
-이 네 개의 큰 흐름을 보자면,
-프로세스의 파일 이름은 ```C process_execute (const char *file_name)``` 에서 알 수 있다.
+> 이 네 개의 큰 흐름을 보자면,
+프로세스의 파일 이름은 ```process_execute (const char *file_name)``` 에서 알 수 있다.
 그럼 프로세스의 exit_code는 무엇이며, 어떻게 알 수 있을까?
