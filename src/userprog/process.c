@@ -45,7 +45,8 @@ process_execute (const char *file_name)
   */
 
   /* PLAN
-  char* token = strtok_r(file_name, " ", &save_ptr);
+  // file_name 의 첫 인자가 진짜 file name 이다.
+  char* token = strtok_r(file_name, " ", &save_ptr); << 여기에 save_ptr 대신 NULL을 넣어도 무방함. save_ptr은 이후 안쓰임. 함 해보까?
   tid = thread_create (token, PRI_DEFAULT, start_process, fn_copy);
   */
 
@@ -223,25 +224,35 @@ load (const char *file_name, void (**eip) (void), void **esp)
   off_t file_ofs;
   bool success = false;
   int i;
-  /* PLAN
-  char* temp_file_name = palloc_get_page(0);
-  strcpy(temp_file_name, file_name, PGSIZE);
-  
-  char** argv;
-  int argc = 0;
 
-  // argv[0] = 프로그램의 경로
-  argv[0] = strtok_r (temp_file_name, " ", &save_ptr);
-
-  // argv[1] = 첫 번째 인자
-  // argv[2] = 두 번째 인자
-  
-  */
   /* Allocate and activate page directory. */
   t->pagedir = pagedir_create ();
   if (t->pagedir == NULL) 
     goto done;
   process_activate ();
+
+  /* PLAN
+  // using strtok_r reference: https://codeday.me/ko/qa/20190508/495336.html
+  char* ptr = palloc_get_page(0); // make q point to start of file_name.
+  char* rest; // to point to the rest of the string after token extraction.
+  char* token; // to point to the actual token returned.
+
+  strcpy(ptr, file_name, PGSIZE);
+  
+  char** argv;
+  int argc = 0;
+
+  // argv[0] = 프로그램의 경로
+  // argv[1] = 첫 번째 인자
+  // argv[2] = 두 번째 인자
+  
+  // loop untill strtok_r return NULL
+  while(token = strtok_r(ptr, " ", &rest)){
+    argv[argc] = token; // address of each word are pushed into argv.
+    ptr = rest;
+    argc++;
+  }
+  */
 
   /* Open executable file. */
   file = filesys_open (file_name);
