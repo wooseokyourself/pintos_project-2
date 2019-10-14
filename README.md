@@ -36,7 +36,7 @@
  "lib/string.h" 에 프로토타입이 있는 ```strtoc_r()``` 을 살펴보십시오.
  매뉴얼을 보면 자세한 내용을 알 수 있습니다(프롬프트에서 man strtok_r 실행).
  
- #### 1.1 Program Startup Details (docs p.36)
+ #### 1.1. Program Startup Details (docs p.36)
  ```'/bin/ls -l foo bar'```라는 command는 어떻게 다뤄지는가?
   1. command 가 단어로 쪼개진다. ```'/bin/ls'```, ```'-l'```, ```'foo'```, ```'bar'```.
   2. 위 단어들을 스택의 가장 위에 넣는다. (포인터로 참조되므로 각 단어의 순서는 중요하지 않다.)
@@ -48,6 +48,11 @@
   5. 가짜 "return address"를 push한다.
    > entry function은 절대 return되지 않지만, 그것의 스택프레임은 다른 프레임 구조와 동일해야한다.
    >> docs p.37의 스택테이블 참조하기
+   
+ #### 1.2. Stack(User virtual memory)
+  - virtual address 0 up to ```PHYS_BASE``` (which is defined in "threads/vaddr.h") and defaults to ```0xc0000000```(3GB).
+  - Kernel virtual memory가 나머지 virtual address space를 점유한다.
+  - 프로세스당 하나를 할당받는다. 커널이 프로세스를 switch하면, 프로세서의 page directory base register를 바꾸면서 user virtual address spaces도 함께 switch한다. (```pagedir_activate()``` in "userprog/pagedir.c")
   
 ### 1. Process Termination Messages
 
