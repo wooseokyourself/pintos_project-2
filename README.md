@@ -79,11 +79,22 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
   #### Argument Passing 구현계획
   > ```process_execute()```에서 ```thread_create()```를 호출하기 전 파일 이름을 ```strtok_r```을 통해 토큰화한 뒤, 이를 ```thread_create()```의 첫 번째 인자로 넣어준다.
   
-  > ```process_execute()```에서 ```thread_create()```를 호출할 때 ```start_process (void *file_name_)```이 호출된다(이 때 ```file_name```은 ```thread_create()```에 argument로 전달된 토큰이 아닌 ```process_execute()```의 argument로 전달된 ```file_name```이다). 이후 ```start_process()``` 내에서 ```load (file_name, &if_.eip, &if_.esp)``` 를 호출하는데, 이 때 argument로 전달되는 ```file_name```은 역시 토큰이 아닌 그냥 생짜 ```file_name```이다.
+  >> ```process_execute()```에서 ```thread_create()```를 호출할 때 ```start_process (void *file_name_)```이 호출된다(이 때 ```file_name```은 ```thread_create()```에 argument로 전달된 토큰이 아닌 ```process_execute()```의 argument로 전달된 ```file_name```이다). 이후 ```start_process()``` 내에서 ```load (file_name, &if_.eip, &if_.esp)``` 를 호출하는데, 이 때 argument로 전달되는 ```file_name```은 역시 토큰이 아닌 그냥 생짜 ```file_name```이다.
   
-  > ```load (const char *file_name, void (**eip) (void), void **esp)``` 에서 실질적으로 파일을 여는데,이 때 전달된 ```file_name```을 ```file_name```의 첫번째 토큰으로 변경해야 한다.
+  > ```load (const char *file_name, void (**eip) (void), void **esp)``` 에서 실질적으로 파일을 여는데,이 때 전달된 ```file_name```을 ```file_name```의 첫번째 토큰으로 변경해야 한다. (```file = filesys_open (file_name)```에서의 ```file_name```을 토큰의 제일 첫번째 토큰으로 변경)
   
-  > ```load ()```
+  >> ```load ()``` 내에서 호출되는 ```set_up (esp)``` 를 변경해야 한다. ```static bool setup_stack (void **esp)```를 보면, 스택을 위한 페이지를 할당받는 게 성공하면 argument로 받은 ```esp```가 ```PHYS_BASE```로 초기화되는 것을 확인할 수 있다.
+  
+  >> 1.1. Program Startup Details 에 언급했듯, 우리는 command의 각 단어의 주소를 ```argv```에 넣어 이 ```argv```와 null pointer sentinel를 스택에 넣어야 한다. 이렇게 하기 위해서는, ```set_up ()```를 호출하는 ```load ()```에서 ```file_name```을 토대로 ```char *argv []``` 및 ```int argc``` 를 초기화 한 뒤, ```esp```와 함께 이 둘도 ```set_up ()```의 argument로 보내주어야 한다.
+  
+  >> ```
+  
+  >> ```argc ``` <-- ```file_name``` 토큰의 수
+  
+  >> ```argv [0] ```<-- ```file_name``` 토큰의 첫 번째.
+  
+  >> ...
+  
 -----------------------------------
 
 ### 1. Process Termination Messages
