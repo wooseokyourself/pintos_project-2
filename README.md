@@ -12,6 +12,8 @@
  so that the same values in both identify the same process,
  or you can use a more complex mapping. It’s up to you.
 
+----------------------------------------
+
 # Pintos Project2
 핀토스는 아래와 같은 구현순서를 추천하고 있다.
  - Argument passing
@@ -22,7 +24,7 @@
  - Change ```process_wait()``` to an infinite loop.
 
 이 녀석들을 차근차근 살펴보자.
-### 1. Argument passing
+### 1. Argument Passing
  > 현재 ```process_execute()```는 새로운 프로세스에 대해 passing arguments를 지원하지 않고 있다.
  이 함수를 확장하여, 프로그램 파일 이름을 argument로 사용하는 대신 공백으로 단어로 나누는 기능을 구현해라.
  첫 번째 단어는 프로그램 이름이고 두 번째 단어는 첫 번째 argument이다. 즉,
@@ -56,6 +58,16 @@
   - 유저프로그램은 본인의 user virtual memory에만 접근할 수 있다. 나머지는 예외처리된다. 커널은 현재 실행중인 유저프로세스의 virtual memory에도 접근할 수 있다.
   - 유저스택의 사이즈는 고정되어있다. 이는 Project3 에서 확장할 것이다.
   
+  #### Argument Passing 구현을 위한 질문
+  - 유저프로그램의 실행으로 ```process_execute (const char *file_name)``` 함수가 실행될 때, 스택의 할당과 스택으로 push(fn_copy) 하는 코드는 어디에 있는 건가?
+  > 프로그램 실행 --> ```process_execute()``` 안에서 ```thread_create()``` 및 ```start_process()```.
+  > ```start_process (void *file_name_)``` 안에서 유저프로그램 ```load(file_name, &if_.eip, &if_.esp)```.
+  >> ```eip```는 실행할 명령의 주소, ```esp```는 현재 진행하는 함수의 제일 아래부분의 스택포인터이다.
+  >> 여기에서 파일이 실행가능하다면, ```intr_exit```(in "threads/intr-stubs.S") 인터럽트로부터의 리턴을 시뮬레이션(?)하여 유저프로세스를 실행함. 이 ```intr_exit```은 스택의 모든 arguments를 ```struct intr_frame``` 형식으로 가져오기 때문에, 우리는 스택포인터(```&esp```)를 우리의 스택프레임으로 가리키게 한 다음에 그것을 점프한다(?).
+  
+  
+-----------------------------------
+
 ### 1. Process Termination Messages
 
  - 어떠한 이유로든간에 user program이 종료되면, 해당 프로세스의 이름과 exit_code를 출력하기.
