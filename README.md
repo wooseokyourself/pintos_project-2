@@ -1,3 +1,17 @@
+# PintOS
+#### Difference between ```C tid_t``` and ```C pid_t``` (docs p.41)
+ > ```C tid_t```는 커널 스레드에서 User process가 실행중이거나(process_execute()의 경우)
+ 그렇지 않은 경우(thread_create()의 경우) 커널 스레드를 식별한다.
+ 즉, 이는 커널에서만 쓰이는 데이터타입이다.
+ 
+ > ```C pid_t```는 User process를 식별한다. User process와 커널 안에서
+ ```C exec``` 혹은 ```C wait₩₩₩ 시스템 콜을 사용하기 위해 사용된다.
+ 
+ > You can choose whatever suitable types you like for tid_t and pid_t.
+ By default, they’re both int. You can make them a one-to-one mapping,
+ so that the same values in both identify the same process,
+ or you can use a more complex mapping. It’s up to you.
+
 # Pintos Project2
 
 ### 1. Process Termination Messages
