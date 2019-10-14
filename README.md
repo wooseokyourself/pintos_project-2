@@ -24,6 +24,8 @@
  - Change ```process_wait()``` to an infinite loop.
 
 이 녀석들을 차근차근 살펴보자.
+-----------------------------------
+
 ### 1. Argument Passing
  > 현재 ```process_execute()```는 새로운 프로세스에 대해 passing arguments를 지원하지 않고 있다.
  이 함수를 확장하여, 프로그램 파일 이름을 argument로 사용하는 대신 공백으로 단어로 나누는 기능을 구현해라.
@@ -110,7 +112,18 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
   
   >>> return address의 크기는 4이며, ```*(int*)*esp = 0;``` 이다.
 
-  
+
+### 2. User Memory Access
+> 모든 시스템콜은 유저메모리를 read하는 게 필요하다. 그 중 몇몇 시스템콜은 유저메모리를 write하는 게 필요하다.
+
+> 커널은 유저프로그램으로부터 제공받는 포인터을 통해 유저메모리에 접근해야 한다. 하지만 그 포인터가 이상한 녀석일 수도 있다. (null이라던가, unmapped virtual memory라던가, 커널 virtual address space를 가리키고 있다거나(above ```PHYS_BASE```)...) 이러한 포인터들은, 해당 프로세스를 종료하고 자원을 회수함으로써 거절되어야 한다.
+
+> 위 문제를 해결하기 위한 방법은 두 가지가 있는데, 첫 번째는 유저로부터 제공된 포인터가 타당한지 검증하는 방법이고("userprog/pagedir.c"와 "threads/vaddr.h"를 봐야 한다), 두 번째 방법은 우저포인터가 ```PHYS_BASE``` 아래에 있는지 확인하는 방법이다("userprog/exception.c"의 ```page_fault()```를 수정해야한다). 일반적으로 두 번째 방법이 빠르다.
+
+> 두 경우 모두 메모리누수가 일어나지 않도록 철저히 확인해야 한다. 어떤 경우에서?
+
+>> example) 시스템콜이 lock이나 힙에 할당된 메모리를 획득한 상황에서, 잘못된 유저포인터와 조우하게 된다면 lock을 release하거나 메모리페이지를 free해야만 한다. 첫 번째 방법으로 포인터를 판단한다면 이 상황은 비교적 간단하게 해결될 수 있다. 하지만 만약 두 번째 방법(```PHYS_BASE```를 확인하는 방법)으로 포인터를 판단한다면 좀 어렵다. 왜냐하면 메모리 접근으로부터 error code를 리턴할 방법이 없기 때문이다. 이를 위해 핀토스는 두 번째 판단방법을 사용하는 사람을 위해 추가적인 code를 제공한다(docs p.27).
+
 -----------------------------------
 
 ### 1. Process Termination Messages
