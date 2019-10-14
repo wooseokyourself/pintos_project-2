@@ -36,6 +36,18 @@
  "lib/string.h" 에 프로토타입이 있는 ```strtoc_r()``` 을 살펴보십시오.
  매뉴얼을 보면 자세한 내용을 알 수 있습니다(프롬프트에서 man strtok_r 실행).
  
+ #### 1.1 Program Startup Details (docs p.36)
+ ```'/bin/ls -l foo bar'```라는 command는 어떻게 다뤄지는가?
+  1. command 가 단어로 쪼개진다. ```'/bin/ls'```, ```'-l'```, ```'foo'```, ```'bar'```.
+  2. 위 단어들을 스택의 가장 위에 넣는다. (포인터로 참조되므로 각 단어의 순서는 중요하지 않다.)
+  3. 각 단어(string)의 주소와 null pointer sentinel 을 스택에 push한다. (right-to-left 순서로)
+   3.1. 이 녀석들은 모두 ```argv``` 의 elements 다. null pointer sentinel은 ```argv[argc]```가 널포인터일 경우를 대비한 것이다(C standard).
+   3.2. 이 순서는 ```argv[0]```이 가장 낮은 virtual address에 있도록 한다.
+   3.3. 첫 번째 push 전에 스택포인터를 4의 배수로 내린다.
+  4. ```argv```(argv[0]의 주소)와 ```argc```를 순서대로 push한다.
+  5. 가짜 "return address"를 push한다.
+   5.1. entry function은 절대 return되지 않지만, 그것의 스택프레임은 다른 프레임 구조와 동일해야한다.
+  
 ### 1. Process Termination Messages
 
  - 어떠한 이유로든간에 user program이 종료되면, 해당 프로세스의 이름과 exit_code를 출력하기.
