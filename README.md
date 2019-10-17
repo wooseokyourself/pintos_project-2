@@ -15,18 +15,18 @@
 ----------------------------------------
 
 # Pintos Project2
-핀토스는 아래와 같은 구현순서를 추천하고 있다.
+핀토스는 아래와 같은 구현순서를 추천하고 있다. (아마 이 순서로 진행해야 수월하게 과제 완료할 수 있는듯)
  - Argument passing
- - User memory access
- - System call infrastructure
- - The ```exit``` system call
- - The ```write``` system call for writing to fd 1, the system console
- - Change ```process_wait()``` to an infinite loop.
+ - User memory access (upto "System Call" problem)
+ - System call infrastructure (upto "System Call" problem)
+ - The ```exit``` system call (upto "System Call" problem)
+ - The ```write``` system call for writing to fd 1, the system console (upto "System Call" problem)
+ - Change ```process_wait()``` to an infinite loop. (upto "System Call"? I don't know yet)
 
 이 녀석들을 차근차근 살펴보자.
 -----------------------------------
 
-### 1. Argument Passing
+### 1. Argument Passing (문제정의)
  > 현재 ```process_execute()```는 새로운 프로세스에 대해 passing arguments를 지원하지 않고 있다.
  이 함수를 확장하여, 프로그램 파일 이름을 argument로 사용하는 대신 공백으로 단어로 나누는 기능을 구현해라.
  첫 번째 단어는 프로그램 이름이고 두 번째 단어는 첫 번째 argument이다. 즉,
@@ -37,7 +37,7 @@
  (핀토스 유틸리티가 커널에 전달할 수 있는 명령행 인수에는 128바이트 관련 제한이 없긴 하다).
  
  > 내가 원하는 방식으로 argument strings를 parse 할 수 있다. 감이 안 잡힌다면, 
- "lib/string.h" 에 프로토타입이 있는 ```strtoc_r()``` 을 살펴보십시오.
+ "lib/string.h" 에 프로토타입이 있는 ```strtok_r()``` 을 살펴보십시오.
  매뉴얼을 보면 자세한 내용을 알 수 있습니다(프롬프트에서 man strtok_r 실행).
 ```C
 char* strtok_r (char *s, const char *delimiters, char **save_ptr)
@@ -116,7 +116,7 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
   >>> return address의 크기는 4이며, ```*(int*)*esp = 0;``` 이다.
 
 
-### 2. User Memory Access
+### 2. User Memory Access (문제정의)
 > 모든 시스템콜은 유저메모리를 read하는 게 필요하다. 그 중 몇몇 시스템콜은 유저메모리를 write하는 게 필요하다.
 
 > 커널은 유저프로그램으로부터 제공받는 포인터을 통해 유저메모리에 접근해야 한다. 하지만 그 포인터가 이상한 녀석일 수도 있다. (null이라던가, unmapped virtual memory라던가, 커널 virtual address space를 가리키고 있다거나(above ```PHYS_BASE```)...) 이러한 포인터들은, 해당 프로세스를 종료하고 자원을 회수함으로써 거절되어야 한다.
@@ -128,6 +128,8 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
 >> example) 시스템콜이 lock이나 힙에 할당된 메모리를 획득한 상황에서, 잘못된 유저포인터와 조우하게 된다면 lock을 release하거나 메모리페이지를 free해야만 한다. 첫 번째 방법으로 포인터를 판단한다면 이 상황은 비교적 간단하게 해결될 수 있다. 하지만 만약 두 번째 방법(```PHYS_BASE```를 확인하는 방법)으로 포인터를 판단한다면 좀 어렵다. 왜냐하면 메모리 접근으로부터 error code를 리턴할 방법이 없기 때문이다. 이를 위해 핀토스는 두 번째 판단방법을 사용하는 사람을 위해 추가적인 code를 제공한다(docs p.27).
 
 -----------------------------------
+이하는 그 외 Problem
+-----------------------------------
 
 ### 1. Process Termination Messages
 
@@ -135,9 +137,7 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
  - 프로세스의 이름은 process_execute() 함수를 거쳐가야 한다(커맨드라인 argument는 생략).
  - 커널 스레드가 종료되거나(이는 유저프로세스 종료가 아님), halt 라는 시스템콜이 호출되면 프린트하지 말기.
 
-###### 궁금한점 1. 유저프로그램을 돌리는 스레드가 프로젝트 1에서 건드린 스레드와 동일한 스레드인가? 그게 맞다면 그냥 thread_exit() 함수에서 print 코드를 추가하면 되는 것 아닐까?
-> 핀토스는 하나의 프로세스당 하나의 스레드만을 지원한다. 하나의 프로그램 실행은 하나의 프로세스로 보아야 하며,
-프로세스 단위로 접근해야한다.
+
 > process.h 에 정의된 함수는 네 개 이다.
 ```C
 
