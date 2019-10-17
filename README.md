@@ -71,24 +71,27 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
   #### Argument Passing 구현을 위한 질문
   - 유저프로그램의 실행으로 ```process_execute (const char *file_name)``` 함수가 실행될 때, 스택의 할당과 스택으로 push(fn_copy) 하는 코드는 어디에 있는 건가?
   >> 유저프로그램의 실행을 위해 ```file_name```이 전달되는 큰 그림은 아래와 같다.
-  > 프로그램 실행 --> ```process_execute()``` 안에서 ```thread_create()``` 및 ```start_process()```.
   
-  > ```start_process (void *file_name_)``` 안에서 유저프로그램 ```load(file_name, &if_.eip, &if_.esp)```.
+  > a. 프로그램 실행 --> ```process_execute()``` 안에서 ```thread_create()``` 및 ```start_process()```.
+  
+  > b. ```start_process (void *file_name_)``` 안에서 유저프로그램 ```load(file_name, &if_.eip, &if_.esp)```.
+  
   >> ```eip```는 실행할 명령의 주소, ```esp```는 현재 진행하는 함수의 제일 아래부분의 스택포인터이다.
+  
   >> 여기에서 파일이 실행가능하다면, ```intr_exit```(in "threads/intr-stubs.S") 인터럽트로부터의 리턴을 시뮬레이션(?)하여 유저프로세스를 실행함. 이 ```intr_exit```은 스택의 모든 arguments를 ```struct intr_frame``` 형식으로 가져오기 때문에, 우리는 스택포인터(```&esp```)를 우리의 스택프레임으로 가리키게 한 다음에 그것을 점프한다(?).
   
-  > ```load (const char *file_name, void (**eip) (void), void **esp)``` 안에서 ```setup_stack (esp)```를 통해 스택포인터, 즉 스택을 초기화(이를 통해 esp는 ```PHYS_BASE```로 초기화됨).
+  > c. ```load (const char *file_name, void (**eip) (void), void **esp)``` 안에서 ```setup_stack (esp)```를 통해 스택포인터, 즉 스택을 초기화(이를 통해 esp는 ```PHYS_BASE```로 초기화됨).
   
   #### Argument Passing 구현계획
-  > ```process_execute()```에서 ```thread_create()```를 호출하기 전 파일 이름을 ```strtok_r```을 통해 토큰화한 뒤, 이를 ```thread_create()```의 첫 번째 인자로 넣어준다.
+  > a. ```process_execute()```에서 ```thread_create()```를 호출하기 전 파일 이름을 ```strtok_r```을 통해 토큰화한 뒤, 이를 ```thread_create()```의 첫 번째 인자로 넣어준다.
   
   >> ```process_execute()```에서 ```thread_create()```를 호출할 때 ```start_process (void *file_name_)```이 호출된다(이 때 ```file_name```은 ```thread_create()```에 argument로 전달된 토큰이 아닌 ```process_execute()```의 argument로 전달된 ```file_name```이다). 이후 ```start_process()``` 내에서 ```load (file_name, &if_.eip, &if_.esp)``` 를 호출하는데, 이 때 argument로 전달되는 ```file_name```은 역시 토큰이 아닌 그냥 생짜 ```file_name```이다.
   
-  > ```load (const char *file_name, void (**eip) (void), void **esp)``` 에서 실질적으로 파일을 여는데,이 때 전달된 ```file_name```을 ```file_name```의 첫번째 토큰으로 변경해야 한다. (```file = filesys_open (file_name)```에서의 ```file_name```을 토큰의 제일 첫번째 토큰으로 변경)
+  > b. ```load (const char *file_name, void (**eip) (void), void **esp)``` 에서 실질적으로 파일을 여는데,이 때 전달된 ```file_name```을 ```file_name```의 첫번째 토큰으로 변경해야 한다. (```file = filesys_open (file_name)```에서의 ```file_name```을 토큰의 제일 첫번째 토큰으로 변경)
   
   >> ```load ()``` 내에서 호출되는 ```set_up (esp)``` 를 변경해야 한다. ```static bool setup_stack (void **esp)```를 보면, 스택을 위한 페이지를 할당받는 게 성공하면 argument로 받은 ```esp```가 ```PHYS_BASE```로 초기화되는 것을 확인할 수 있다.
   
-  >> 1.1. Program Startup Details 에 언급했듯, 우리는 command의 각 단어의 주소를 ```argv```에 넣어 이 ```argv```와 null pointer sentinel를 스택에 넣어야 한다. 이렇게 하기 위해서는, ```set_up ()```를 호출하는 ```load ()```에서 ```file_name```을 토대로 ```char **argv``` 및 ```int argc``` 를 초기화 한 뒤, ```esp```와 함께 이 둘도 ```set_up ()```의 argument로 보내주어야 한다.
+  >> ###### 1.1. Program Startup Details 에 언급했듯, 우리는 command의 각 단어의 주소를 ```argv```에 넣어 이 ```argv```와 null pointer sentinel를 스택에 넣어야 한다. 이렇게 하기 위해서는, ```set_up ()```를 호출하는 ```load ()```에서 ```file_name```을 토대로 ```char **argv``` 및 ```int argc``` 를 초기화 한 뒤, ```esp```와 함께 이 둘도 ```set_up ()```의 argument로 보내주어야 한다.
   
   >>> ```load ()``` 에서 ```strtok_r()```을 이용하여 각 단어를 ```argv[argc++]```에 넣는다.
   
