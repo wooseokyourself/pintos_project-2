@@ -70,7 +70,8 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
   
   #### Argument Passing 구현을 위한 질문
   - 유저프로그램의 실행으로 ```process_execute (const char *file_name)``` 함수가 실행될 때, 스택의 할당과 스택으로 push(fn_copy) 하는 코드는 어디에 있는 건가?
-  >> 유저프로그램의 실행을 위해 ```file_name```이 전달되는 큰 그림은 아래와 같다.
+  
+  유저프로그램의 실행을 위해 ```file_name```이 전달되는 큰 그림은 아래와 같다.
   
   > a. 프로그램 실행 --> ```process_execute()``` 안에서 ```thread_create()``` 및 ```start_process()```.
   
