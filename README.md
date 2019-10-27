@@ -128,7 +128,13 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
 
 >> example) 시스템콜이 lock이나 힙에 할당된 메모리를 획득한 상황에서, 잘못된 유저포인터와 조우하게 된다면 lock을 release하거나 메모리페이지를 free해야만 한다. 첫 번째 방법으로 포인터를 판단한다면 이 상황은 비교적 간단하게 해결될 수 있다. 하지만 만약 두 번째 방법(```PHYS_BASE```를 확인하는 방법)으로 포인터를 판단한다면 좀 어렵다. 왜냐하면 메모리 접근으로부터 error code를 리턴할 방법이 없기 때문이다. 이를 위해 핀토스는 두 번째 판단방법을 사용하는 사람을 위해 추가적인 code를 제공한다(docs p.27).
 
-threads/vaddr.h 에 있는 ```bool is_user_vaddr(const void *vaddr)``` 함수를 이용하면 두 번째 방법을 사용할 수 있다. 이 함수는 인자로 넘겨받은 ```vaddr```이 ```PHYS_BASE```보다 아래에 있으면 true를 리턴한다.
+"threads/vaddr.h" 에 있는 ```bool is_user_vaddr(const void *vaddr)``` 함수를 이용하면 두 번째 방법을 사용할 수 있다. 이 함수는 인자로 넘겨받은 ```vaddr```이 ```PHYS_BASE```보다 아래에 있으면 true를 리턴한다.
+
+  #### 유저프로그램 실행에 따른 page의 흐름
+  1. 유저프로그램이 실제로 실행되기 위해 ```load()``` 함수가 호출되면, ```file_name```으로부터 파일을 열기 전에 스레드를 하나 생성하고, 그 스레드에 ```pagedir_create()```를 통해 페이지를 하나 생성한다.
+  2. 스레드가 생성되고 페이지가 할당된 시점에서 ```process_activate()```가 호출되고, 이 함수 안에서 ```pagedir_activate(uint32_t *pd)``` 함수가 호출된다. 이 함수에서는 어셈블리 코드를 통해 pd를 CPU's page directory base register(PDBR)에 넣는다. 이를 통해서 실질적으로 무언가가 되는 듯 하다.
+"pagedir.h"의 함수들 
+  
 
 -----------------------------------
 이하는 그 외 Problem
