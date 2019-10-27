@@ -197,12 +197,21 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
 
    
    - ```int read (int fd, void *buffer, unsigned size)```
-> 
+> ```fd != 0```이라면 ```file_read()```를 호출하고, ```fd = 0```이라면 ```input_getc()```를 이용해 키보드 입력을 버퍼에 넣는다.
    
    - ```int write (int fd, const void *buffer, unsigned size)```
+> ```fd != 0```이라면 ```putbuf()``` 함수를 이용하여 버퍼의 내용을 콘솔에 입력한다. 이 때에는 필요한 사이즈만큼 반복문을 돌아야 한다. ```fd = 0```이라면 ```file_write()```를 호출한다.
+
    - ```void seek (int fd, unsigned position)```
+> ```file_seek()``` 함수를 호출한다. 
+
+> 0이 파일의 시작지점이다.
+
    - ```unsigned tell (int fd)```
+> ```file_tell()``` 함수를 호출한다.
+
    - ```void close (int fd)```
+> ```filesys_close()``` 함수를 호출한다.
    
 -----------------------------------
 이하는 그 외 Problem
