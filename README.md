@@ -159,9 +159,8 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
    
    ##### User Process Manipulation
    - void halt (void)
-   
-    > 핀토스 종료. ```shutdown_power_off()``` 를 호출하면 된다.
-   
+> 핀토스 종료. ```shutdown_power_off()``` 를 호출하면 된다.
+  
    - pid_t exec (const char *cmd_line)
    
     > ```process_execute()```를 호출한 뒤, 이 리턴값이 ```TID_ERROR```라면 -1을 리턴하고, 아니면 리턴값을 그대로 리턴한다.
