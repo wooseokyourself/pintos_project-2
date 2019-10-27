@@ -20,7 +20,8 @@
  - 커널 스레드가 종료되거나(이는 유저프로세스 종료가 아님), halt 라는 시스템콜이 호출되면 프린트하지 말기.
  
 프로세스의 파일 이름은 ```process_execute (const char *file_name)``` 에서 알 수 있다.
-그럼 프로세스의 exit_code는 무엇이며, 어떻게 알 수 있을까?
+
+프로세스의 exit code는 스레드의 ```thread_status```이며, 프로세스 이름은 ```char name[16]```이다. ```process_exit()```에서 이 두 정보를 print해준다.
 
 
 ### 2. Argument Passing (문제정의)
