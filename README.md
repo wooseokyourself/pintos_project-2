@@ -1,16 +1,4 @@
 # PintOS
-#### Difference between ```tid_t``` and ```pid_t``` (docs p.41)
- > ```tid_t```는 커널 스레드에서 User process가 실행중이거나(process_execute()의 경우)
- 그렇지 않은 경우(thread_create()의 경우) 커널 스레드를 식별한다.
- 즉, 이는 커널에서만 쓰이는 데이터타입이다.
- 
- > ```pid_t```는 User process를 식별한다. User process와 커널 안에서
- ```exec``` 혹은 ```wait``` 시스템 콜을 사용하기 위해 사용된다.
- 
- > You can choose whatever suitable types you like for tid_t and pid_t.
- By default, they’re both int. You can make them a one-to-one mapping,
- so that the same values in both identify the same process,
- or you can use a more complex mapping. It’s up to you.
 
 ----------------------------------------
 
@@ -30,6 +18,9 @@
  - 어떠한 이유로든간에 user program이 종료되면, 해당 프로세스의 이름과 exit_code를 출력하기.
  - 프로세스의 이름은 process_execute() 함수를 거쳐가야 한다(커맨드라인 argument는 생략).
  - 커널 스레드가 종료되거나(이는 유저프로세스 종료가 아님), halt 라는 시스템콜이 호출되면 프린트하지 말기.
+ 
+프로세스의 파일 이름은 ```process_execute (const char *file_name)``` 에서 알 수 있다.
+그럼 프로세스의 exit_code는 무엇이며, 어떻게 알 수 있을까?
 
 
 ### 2. Argument Passing (문제정의)
@@ -230,7 +221,7 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
 -----------------------------------
 
 
-
+#### userprog/process.h
 > process.h 에 정의된 함수는 네 개 이다.
 ```C
 
@@ -256,6 +247,16 @@ void process_activate (void);
    이 함수는 매 context switch마다 호출된다. */
 
 ```
-> 이 네 개의 큰 흐름을 보자면,
-프로세스의 파일 이름은 ```process_execute (const char *file_name)``` 에서 알 수 있다.
-그럼 프로세스의 exit_code는 무엇이며, 어떻게 알 수 있을까?
+
+#### Difference between ```tid_t``` and ```pid_t``` (docs p.41)
+ > ```tid_t```는 커널 스레드에서 User process가 실행중이거나(process_execute()의 경우)
+ 그렇지 않은 경우(thread_create()의 경우) 커널 스레드를 식별한다.
+ 즉, 이는 커널에서만 쓰이는 데이터타입이다.
+ 
+ > ```pid_t```는 User process를 식별한다. User process와 커널 안에서
+ ```exec``` 혹은 ```wait``` 시스템 콜을 사용하기 위해 사용된다.
+ 
+ > You can choose whatever suitable types you like for tid_t and pid_t.
+ By default, they’re both int. You can make them a one-to-one mapping,
+ so that the same values in both identify the same process,
+ or you can use a more complex mapping. It’s up to you.
