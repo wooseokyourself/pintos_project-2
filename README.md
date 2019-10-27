@@ -128,7 +128,7 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
 
 >> example) 시스템콜이 lock이나 힙에 할당된 메모리를 획득한 상황에서, 잘못된 유저포인터와 조우하게 된다면 lock을 release하거나 메모리페이지를 free해야만 한다. 첫 번째 방법으로 포인터를 판단한다면 이 상황은 비교적 간단하게 해결될 수 있다. 하지만 만약 두 번째 방법(```PHYS_BASE```를 확인하는 방법)으로 포인터를 판단한다면 좀 어렵다. 왜냐하면 메모리 접근으로부터 error code를 리턴할 방법이 없기 때문이다. 이를 위해 핀토스는 두 번째 판단방법을 사용하는 사람을 위해 추가적인 code를 제공한다(docs p.27).
 
-is_user_vaddr() 함수를 이용하면 두 번째 방법을 사용할 수 있다.
+threads/vaddr.h 에 있는 ```bool is_user_vaddr(const void *vaddr)``` 함수를 이용하면 두 번째 방법을 사용할 수 있다. 이 함수는 인자로 넘겨받은 ```vaddr```이 ```PHYS_BASE```보다 아래에 있으면 true를 리턴한다.
 
 -----------------------------------
 이하는 그 외 Problem
