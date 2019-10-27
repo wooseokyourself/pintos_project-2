@@ -136,6 +136,12 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
   
 "pagedir.h"의 함수들 중에서 ```void *upage```, ```void *kpage```를 인자로 받는 함수들이 있다. 첫 번째 방법에서 유저로부터 제공된 포인터가 타당한지를 검증하는 코드를 이 함수들 안에 짜야 하는 걸까?
   
+  ### 그냥 막 해보자
+   - "userprog/syscall.c"의 ```static void syscall_handler(struct intr_frame *f UNUSER)```함수에서 인자로 ```intr_frame *f```가 들어온다. 
+   - ```intr_frame```구조체는 "thread/interrupt.h" 에 선언되어있다.
+   - "lib/user/syscall.c" 를 보면 syscall 번호를 어셈블리어로 호출하하고 있음을 각 함수의 주석을 읽어보면 알 수 있다. 이 때, ```syscall0```, ```syscall1```, ```syscall2```, ```syscall3``` 함수의 ```asm volatile``` 호출 부분을 보면 각각 ```$4```, ```$8```, ```$12```, ```$16```에 ```esp```를 ```add```하는 것 같은 수상적은 낌새를 눈치챌 수 있다.
+   - "lib/user/syscall-nr.h" 에 각 syscall이 enum으로 명시되어있다. 요 녀석들을 번호로 호출하는 것 같다.
+   - 정리해보자면, "userprog/syscall.c" 에서 인자로 받은 ```intr_frame *f```의 데이터 중 시스템콜을 나타내는 숫자가 포함되는 것 같다. 그 숫자가 ```struct intr_frame``` 구조체에 선언된 ```esp```로 들어오는 듯하다.
 
 -----------------------------------
 이하는 그 외 Problem
