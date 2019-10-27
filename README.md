@@ -189,13 +189,16 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
 > 파일을 열고 파일의 id인 ```fd```를 리턴한다. ```filesys_open()```을 통해 파일을 연다. 파일이 열리지 않으면 -1을 리턴한다.
 
 > ```fd```는 자식에게 상속되지 않으며, 같은 파일이고 심지어 같은 프로세스에의해 파일이 실행되더라도 매번 다른 값을 가져야 한다. 이를 위해 fd는, 전역으로 ```int file_open_count``` 변수를 선언한 뒤 ```filesys_open()```이 성공하면 ```file_open_count++```를 리턴하도록 구현할 것이다.
-   
+
+###### 이하의 함수들은 ```fd```와 매핑되는 ```file*```를 어떻게 찾을 것인지를 고민해야 하는데, 잘 모르겠다..
+
    - ```int filesize (int fd)```
 > 핀토스에서는 inode 라는 자료구조 안에 파일의 모든 정보를 저장한다. "filesys/file.c" 에서 ```struct file``` 구조체를 볼 수 있으며, 여기에 데이터로 ```inode```를 가지고 있음을 확인할 수 있다. 이 ```inode->data->length``` 가 파일의 사이즈를 의미한다.
 
-> 그럼 인자로 들어온 ```fd```와 매핑되는 ```file*```를 어떻게 찾을 것인가??
    
    - ```int read (int fd, void *buffer, unsigned size)```
+> 
+   
    - ```int write (int fd, const void *buffer, unsigned size)```
    - ```void seek (int fd, unsigned position)```
    - ```unsigned tell (int fd)```
