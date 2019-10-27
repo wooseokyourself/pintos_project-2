@@ -159,9 +159,11 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
    
    ##### User Process Manipulation
    - ```void halt (void)```
+   
     > 핀토스 종료. ```shutdown_power_off()``` 를 호출하면 된다.
    
    - ```pid_t exec (const char *cmd_line)```
+   
     > ```process_execute()```를 호출한 뒤, 이 리턴값이 ```TID_ERROR```라면 -1을 리턴하고, 아니면 리턴값을 그대로 리턴한다.
    
    - ```int wait (pid_t pid)```
@@ -175,7 +177,9 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
     > ```status = THREAD_DYING```일 경우, ```isRun = true```라면 자식스레드가 커널에 의해 종료된 것이라고 판단할 수 있다. 만약 ```isRun = false```라면 이미 부모스레드에 의해 종료된 것이라고 판단할 수 있다. 자식스레드가 직속(?) 자식인지를 구분하기 위해서는 ```child_pid```를 이용한다. 이미 ```wait```을 부른 경우는 ```status = THREAD_BLOCKED```으로 판단할 수 있다(?).
     
    - ```void exit (int status)```
+   
     > 현재 프로그램을 종료하고, ```status```를 커널로 리턴한다.
+    
     > ```status = THREAD_DYING``` 및 ```isRun = false``` 로 변경해준 뒤 ```process_exit()``` 를 호출한다.
    
    ##### File Manipulation
