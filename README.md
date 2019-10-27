@@ -23,10 +23,16 @@
  - The ```write``` system call for writing to fd 1, the system console (upto "System Call" problem)
  - Change ```process_wait()``` to an infinite loop. (upto "System Call"? I don't know yet)
 
-이 녀석들을 차근차근 살펴보자.
+이 녀석들을 함께 살펴보자.
 -----------------------------------
+### 1. Process Termination Messages
 
-### 1. Argument Passing (문제정의)
+ - 어떠한 이유로든간에 user program이 종료되면, 해당 프로세스의 이름과 exit_code를 출력하기.
+ - 프로세스의 이름은 process_execute() 함수를 거쳐가야 한다(커맨드라인 argument는 생략).
+ - 커널 스레드가 종료되거나(이는 유저프로세스 종료가 아님), halt 라는 시스템콜이 호출되면 프린트하지 말기.
+
+
+### 2. Argument Passing (문제정의)
  > 현재 ```process_execute()```는 새로운 프로세스에 대해 passing arguments를 지원하지 않고 있다.
  이 함수를 확장하여, 프로그램 파일 이름을 argument로 사용하는 대신 공백으로 단어로 나누는 기능을 구현해라.
  첫 번째 단어는 프로그램 이름이고 두 번째 단어는 첫 번째 argument이다. 즉,
@@ -117,7 +123,9 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
   >>> return address의 크기는 4이며, ```*(int*)*esp = 0;``` 이다.
 
 
-### 2. User Memory Access (문제정의)
+### 3. System Call
+
+#### 3-1. User Memory Access (문제정의)
 > 모든 시스템콜은 유저메모리를 read하는 게 필요하다. 그 중 몇몇 시스템콜은 유저메모리를 write하는 게 필요하다.
 
 > 커널은 유저프로그램으로부터 제공받는 포인터을 통해 유저메모리에 접근해야 한다. 하지만 그 포인터가 이상한 녀석일 수도 있다. (null이라던가, unmapped virtual memory라던가, 커널 virtual address space를 가리키고 있다거나(above ```PHYS_BASE```)...) 이러한 포인터들은, 해당 프로세스를 종료하고 자원을 회수함으로써 거절되어야 한다.
@@ -130,14 +138,14 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
 
 "threads/vaddr.h" 에 있는 ```bool is_user_vaddr(const void *vaddr)``` 함수를 이용하면 두 번째 방법을 사용할 수 있다. 이 함수는 인자로 넘겨받은 ```vaddr```이 ```PHYS_BASE```보다 아래에 있으면 true를 리턴한다.
 
-  #### 유저프로그램 실행에 따른 page의 흐름
+  ##### 유저프로그램 실행에 따른 page의 흐름
   1. 유저프로그램이 실제로 실행되기 위해 ```load()``` 함수가 호출되면, ```file_name```으로부터 파일을 열기 전에 스레드를 하나 생성하고, 그 스레드에 ```pagedir_create()```를 통해 페이지를 하나 생성한다.
   2. 스레드가 생성되고 페이지가 할당된 시점에서 ```process_activate()```가 호출되고, 이 함수 안에서 ```pagedir_activate(uint32_t *pd)``` 함수가 호출된다. 이 함수에서는 어셈블리 코드를 통해 pd를 CPU's page directory base register(PDBR)에 넣는다. 이를 통해서 실질적으로 무언가가 되는 듯 하다.
   
 "pagedir.h"의 함수들 중에서 ```void *upage```, ```void *kpage```를 인자로 받는 함수들이 있다. 첫 번째 방법에서 유저로부터 제공된 포인터가 타당한지를 검증하는 코드를 이 함수들 안에 짜야 하는 걸까?
   
-  ### 그냥 막 해보자
-  #### 시스템콜은 어떤식으로 호출되는거죠?
+  #### 그냥 막 해보자
+  ##### 시스템콜은 어떤식으로 호출되는거죠?
    - "userprog/syscall.c"의 ```static void syscall_handler(struct intr_frame *f UNUSER)```함수에서 인자로 ```intr_frame *f```가 들어온다. 
    - ```intr_frame```구조체는 "thread/interrupt.h" 에 선언되어있다.
    - "lib/user/syscall.c" 를 보면 syscall 번호를 어셈블리어로 호출하하고 있음을 각 함수의 주석을 읽어보면 알 수 있다. 이 때, ```syscall0```, ```syscall1```, ```syscall2```, ```syscall3``` 함수의 ```asm volatile``` 호출 부분을 보면 각각 ```$4```, ```$8```, ```$12```, ```$16```에 ```esp```를 ```add```하는 것 같은 수상적은 낌새를 눈치챌 수 있다.
@@ -146,18 +154,18 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
    - 정리해보자면, "userprog/syscall.c" 에서 인자로 받은 ```intr_frame *f```의 데이터 중 시스템콜을 나타내는 숫자가 포함되는 것 같다. 즉 ```esp```를 4만큼 더해준 뒤(스택을 늘려준 뒤) 그 자리로 syscall 어셈블리 함수의 인자가 차례대로 들어오는 듯하다.
    - 즉 "lib/user/syscall-nr.h"에 선언된 시스템콜들의 순서에 맞게 번호에 따라 호출해주는 함수를 모두 구현해야 한다.
    
-   #### 시스템콜을 호출하는 함수는 어디에 어떤 식으로 선언해야 하는 거죠?
+   ##### 시스템콜을 호출하는 함수는 어디에 어떤 식으로 선언해야 하는 거죠?
    - "lib/user/syscall.c" 에서 각 시스템콜 함수들을 위에서 언급한 ```syscall0()```, ```syscall1()``` 등으로 호출하는 것을 볼 수 있다.
    - 우리는 실제로 각 시스템콜 함수를 구현해야 하는데, 그 구현은 "userprog/syscall.c"에 하면 된다. 그리고 각 시스템콜 함수의 호출은 동일한 파일의 ```static void syscall_handler (struct intr_frame *)``` 이 담당한다.
    - 앞서 확인해봤듯, ```intr_frame``` 구조체는 ```esp```를 가지고 있다. 그러므로 이 핸들러의 인자로 들어오는 녀석의 ```esp```의 위치를 확인해줌으로써 유저포인터가 제대로 된 녀석인지 확인하는 것이 아닐까 조심스레 예측해본다.
    - 모든 시스템콜의 내용 및 파라미터 등의 정보는 pintos docs p.29에 나와있다.
    
-   #### 시스템콜 함수와 어셈블리의 연결고리인 ```NUMBER```는 우리의 ```syscall_handler()```에서 어떻게 매칭되는거죠?
+   ##### 시스템콜 함수와 어셈블리의 연결고리인 ```NUMBER```는 우리의 ```syscall_handler()```에서 어떻게 매칭되는거죠?
    - 나도 모르겠다!
    
-   #### 구현해햐 할 녀석들
+   ##### 구현해햐 할 녀석들
    
-   ##### User Process Manipulation
+   ###### User Process Manipulation
    - ```void halt (void)```
 > 핀토스 종료. ```shutdown_power_off()``` 를 호출하면 된다.
   
@@ -178,7 +186,7 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
     
 > ```status = THREAD_DYING``` 및 ```isRun = false``` 로 변경해준 뒤 ```process_exit()``` 를 호출한다.
    
-   ##### File Manipulation
+   ###### File Manipulation
    - ```bool create (const char *file, unsigned initial_size)```
 > ```filesys_create()``` 함수를 호출한다.
 
@@ -212,16 +220,15 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
 
    - ```void close (int fd)```
 > ```filesys_close()``` 함수를 호출한다.
-   
+
+
+### 4. Denying Writes to Executables
+> ```read()```와 ```write()``` 함수에서 ```file -> deny_write```를 통해 파일을 쓸 수 있는지 확인할 수 있다. 만약 리턴값이 true라면 -1을 반환하며, false라면 ```file_deny_write()```함수를 호출한 뒤 read 혹은 write를 진행한 뒤 ```file_allow_write()``` 함수를 호출한다. 
+
 -----------------------------------
 이하는 그 외 Problem
 -----------------------------------
 
-### 1. Process Termination Messages
-
- - 어떠한 이유로든간에 user program이 종료되면, 해당 프로세스의 이름과 exit_code를 출력하기.
- - 프로세스의 이름은 process_execute() 함수를 거쳐가야 한다(커맨드라인 argument는 생략).
- - 커널 스레드가 종료되거나(이는 유저프로세스 종료가 아님), halt 라는 시스템콜이 호출되면 프린트하지 말기.
 
 
 > process.h 에 정의된 함수는 네 개 이다.
