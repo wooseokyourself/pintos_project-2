@@ -143,13 +143,15 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
    - "lib/user/syscall.c" 를 보면 syscall 번호를 어셈블리어로 호출하하고 있음을 각 함수의 주석을 읽어보면 알 수 있다. 이 때, ```syscall0```, ```syscall1```, ```syscall2```, ```syscall3``` 함수의 ```asm volatile``` 호출 부분을 보면 각각 ```$4```, ```$8```, ```$12```, ```$16```에 ```esp```를 ```add```하는 것 같은 수상적은 낌새를 눈치챌 수 있다.
    - "lib/user/syscall.c" 를 자세히 보면, ```$4```, ```$8``` 의 숫자가 각 함수의 인자의 수와 4의 배수로 매칭되는 것을 알 수 있다. 즉 인자가 없는 ```syscall0(NUMBER)``` 은 syscall의 번호에 해당하는 4바이트(?)만 할당하면 되기에 스택포인터를 4만큼 늘려주는 건가보다.
    - "lib/user/syscall-nr.h" 에 각 syscall이 enum으로 명시되어있다. "lib/user/syscall.c"의 인자인 ```NUMBER```를 이용하여 요 녀석들을 번호로 호출하는 것 같다.
-   - 정리해보자면, "userprog/syscall.c" 에서 인자로 받은 ```intr_frame *f```의 데이터 중 시스템콜을 나타내는 숫자가 포함되는 것 같다. 즉 ```esp```를 4만큼 더해준 뒤(스택을 늘려준 뒤 ) ```struct intr_frame``` 구조체에 선언된 ```esp```로 들어오는 듯하다.
+   - 정리해보자면, "userprog/syscall.c" 에서 인자로 받은 ```intr_frame *f```의 데이터 중 시스템콜을 나타내는 숫자가 포함되는 것 같다. 즉 ```esp```를 4만큼 더해준 뒤(스택을 늘려준 뒤) 그 자리로 syscall 어셈블리 함수의 인자가 차례대로 들어오는 듯하다.
    - 즉 "lib/user/syscall-nr.h"에 선언된 시스템콜들의 순서에 맞게 번호에 따라 호출해주는 함수를 모두 구현해야 한다.
    
    #### 시스템콜을 호출하는 함수는 어디에 어떤 식으로 선언해야 하는 거죠?
    - "lib/user/syscall.c" 에서 각 시스템콜 함수들을 위에서 언급한 ```syscall0()```, ```syscall1()``` 등으로 호출하는 것을 볼 수 있다.
    - 우리는 실제로 각 시스템콜 함수를 구현해야 하는데, 그 구현은 "userprog/syscall.c"에 하면 된다. 그리고 각 시스템콜 함수의 호출은 동일한 파일의 ```static void syscall_handler (struct intr_frame *)``` 이 담당한다.
    - 앞서 확인해봤듯, ```intr_frame``` 구조체는 ```esp```를 가지고 있다. 그러므로 이 핸들러의 인자로 들어오는 녀석의 ```esp```의 위치를 확인해줌으로써 유저포인터가 제대로 된 녀석인지 확인하는 것이 아닐까 조심스레 예측해본다.
+   
+   #### 시스템콜 함수와 어셈블리의 연결고리인 ```NUMBER```는 우리의 ```syscall_handler()```에서 어떻게 매칭되는거죠?
    
 -----------------------------------
 이하는 그 외 Problem
