@@ -150,8 +150,29 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
    - "lib/user/syscall.c" 에서 각 시스템콜 함수들을 위에서 언급한 ```syscall0()```, ```syscall1()``` 등으로 호출하는 것을 볼 수 있다.
    - 우리는 실제로 각 시스템콜 함수를 구현해야 하는데, 그 구현은 "userprog/syscall.c"에 하면 된다. 그리고 각 시스템콜 함수의 호출은 동일한 파일의 ```static void syscall_handler (struct intr_frame *)``` 이 담당한다.
    - 앞서 확인해봤듯, ```intr_frame``` 구조체는 ```esp```를 가지고 있다. 그러므로 이 핸들러의 인자로 들어오는 녀석의 ```esp```의 위치를 확인해줌으로써 유저포인터가 제대로 된 녀석인지 확인하는 것이 아닐까 조심스레 예측해본다.
+   - 모든 시스템콜의 내용 및 파라미터 등의 정보는 pintos docs p.29에 나와있다.
    
    #### 시스템콜 함수와 어셈블리의 연결고리인 ```NUMBER```는 우리의 ```syscall_handler()```에서 어떻게 매칭되는거죠?
+   - 나도 모르겠다!
+   
+   #### 구현해햐 할 녀석들
+   
+   ##### User Process Manipulation
+   - ```void halt (void)```
+   - ```void exit (int status)```
+   - ```pid_t exec (const char *cmd_line)```
+   - ```int wati (pid_t pid)```
+   
+   ##### File Manipulation
+   - ```bool create (const char *file, unsigned initial_size)```
+   - ```bool remove (const char *file)```
+   - ```int open (const char *file)```
+   - ```int filesize (int fd)```
+   - ```int read (int fd, void *buffer, unsigned size)```
+   - ```int write (int fd, const void *buffer, unsigned size)```
+   - ```void seek (int fd, unsigned position)```
+   - ```unsigned tell (int fd)```
+   - ```void close (int fd)```
    
 -----------------------------------
 이하는 그 외 Problem
