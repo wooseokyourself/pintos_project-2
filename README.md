@@ -158,15 +158,15 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
    #### 구현해햐 할 녀석들
    
    ##### User Process Manipulation
-   - ```void halt (void)```
+   - void halt (void)
    
     > 핀토스 종료. ```shutdown_power_off()``` 를 호출하면 된다.
    
-   - ```pid_t exec (const char *cmd_line)```
+   - pid_t exec (const char *cmd_line)
    
     > ```process_execute()```를 호출한 뒤, 이 리턴값이 ```TID_ERROR```라면 -1을 리턴하고, 아니면 리턴값을 그대로 리턴한다.
    
-   - ```int wait (pid_t pid)```
+   - int wait (pid_t pid)
    
     > 자식프로세스(```pid```로 식별, 즉 인자가 자식프로세스이다)를 기다리고, 자식의 exit status를 검사한다. 이를 구현하기 위해, 현재 프로세스(스레드)는 "thread/synch.h"에 정의된 ```void cond_wait (struct condition *, struct lock *)```를 통해 자식프로세스의 종료를 기다리고, 반대로 자식프로세스는 ```void cond_signal (struct condition *, struct lock *)```를 통해 종료를 알리게 한다. pintos docs를 보면 자식프로세스가 정상적으로 종료되지 않고 커널에 의해 종료되는 상황을 구분해두었는데, 이 때 이 함수는 -1을 리턴해야 한다. 또한 ```pid```가 현재 이 함수를 호출한 스레드의 자식이 아닐 경우에도 바로 -1을 리턴해야한다. 참고로 스레드는 상속관계로 ```wait``` 할 수 없다. 즉, 자식의 자식을 인자로 ```wait```을 호출할 수 없다. 또한, 이미 동일한 자식을 인자로 ```wait```을 호출했을 경우에도 즉시 -1을 리턴한다. 
     
@@ -176,7 +176,7 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
     
     > ```status = THREAD_DYING```일 경우, ```isRun = true```라면 자식스레드가 커널에 의해 종료된 것이라고 판단할 수 있다. 만약 ```isRun = false```라면 이미 부모스레드에 의해 종료된 것이라고 판단할 수 있다. 자식스레드가 직속(?) 자식인지를 구분하기 위해서는 ```child_pid```를 이용한다. 이미 ```wait```을 부른 경우는 ```status = THREAD_BLOCKED```으로 판단할 수 있다(?).
     
-   - ```void exit (int status)```
+   - void exit (int status)
    
     > 현재 프로그램을 종료하고, ```status```를 커널로 리턴한다.
     
