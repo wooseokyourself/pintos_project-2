@@ -133,7 +133,8 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
   #### 유저프로그램 실행에 따른 page의 흐름
   1. 유저프로그램이 실제로 실행되기 위해 ```load()``` 함수가 호출되면, ```file_name```으로부터 파일을 열기 전에 스레드를 하나 생성하고, 그 스레드에 ```pagedir_create()```를 통해 페이지를 하나 생성한다.
   2. 스레드가 생성되고 페이지가 할당된 시점에서 ```process_activate()```가 호출되고, 이 함수 안에서 ```pagedir_activate(uint32_t *pd)``` 함수가 호출된다. 이 함수에서는 어셈블리 코드를 통해 pd를 CPU's page directory base register(PDBR)에 넣는다. 이를 통해서 실질적으로 무언가가 되는 듯 하다.
-"pagedir.h"의 함수들 
+  
+"pagedir.h"의 함수들 중에서 ```void *upage```, ```void *kpage```를 인자로 받는 함수들이 있다. 첫 번째 방법에서 유저로부터 제공된 포인터가 타당한지를 검증하는 코드를 이 함수들 안에 짜야 하는 걸까?
   
 
 -----------------------------------
