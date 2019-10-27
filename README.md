@@ -161,7 +161,7 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
    - ```void halt (void)```
    - ```void exit (int status)```
    - ```pid_t exec (const char *cmd_line)```
-   - ```int wati (pid_t pid)```
+   - ```int wait (pid_t pid)```
    
    ##### File Manipulation
    - ```bool create (const char *file, unsigned initial_size)```
