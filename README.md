@@ -211,7 +211,7 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
 > ```file_tell()``` 함수를 호출한다.
 
    - ```void close (int fd)```
-> ```filesys_close()``` 함수를 호출한다.
+> ```filesys_close()``` 함수를 호출한다. 이후 ```process_exit()``` 호출 시 열려있는 모든 파일에 대해 ```close()```를 호출해 닫아주어야한다.
 
 
 ### 4. Denying Writes to Executables
