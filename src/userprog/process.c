@@ -46,7 +46,11 @@ process_execute (const char *file_name)
 
   // PLAN
   // file_name 의 첫 인자가 진짜 file name 이다.
-  char* token = strtok_r(file_name, " ", NULL); // 여기에 &save_ptr 대신 NULL을 넣어도 무방함. save_ptr은 이후 안쓰임. 함 해보까?
+  printf(" FIRST\n");
+  char* dummyptr;
+  char* token = strtok_r(file_name, " ", &dummyptr); // 여기에 &save_ptr 대신 NULL을 넣어도 무방함. save_ptr은 이후 안쓰임. 함 해보까?
+  // >> 여기에 NULL 넣어줬더니 kernel PANIC 떠서 dummyptr 해줌.
+  printf(" SECOND\n");
   tid = thread_create (token, PRI_DEFAULT, start_process, fn_copy);
   
 
