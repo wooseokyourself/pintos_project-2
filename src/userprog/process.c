@@ -223,6 +223,7 @@ bool
 load (const char *file_name, void (**eip) (void), void **esp) 
 { 
 printf(" >> load() start!\n");
+printf("   >> *file_name = %s\n", file_name);
   struct thread *t = thread_current ();
   struct Elf32_Ehdr ehdr;
   struct file *file = NULL;
@@ -255,6 +256,8 @@ printf("    >> MYCODE_START\n");
   /* Get argc's length. */
   while (token = strtok_r(ptr, " ", &rest))
   {
+printf("  >> Get argc's length; while loop.\n");
+printf("    >> obtained token: %s\n", token);
     argc++;
 printf("    >> argc: %d\n", argc);
   }
