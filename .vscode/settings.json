@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "directory.h": "c",
-        "syscall.h": "c",
-        "syscall-nr.h": "c"
-    }
-}
