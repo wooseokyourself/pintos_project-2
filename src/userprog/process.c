@@ -275,6 +275,7 @@ printf("    >> argc: %d\n", argc);
                   1. *argv의 사이즈를 알기 위해 먼저 *file_name의 토큰추출횟수를 구한다.
                   2. 그 횟수를 argc로 하고, *argv를 argc 사이즈로 동적할당한다.
                   3. 현재 이 while문을 진행한다. 
+                   >> 이렇게 했으나 위 argc 사이즈 구하는 while문에서 echo만 무한출력하는 무한루프 발생
     */
     ptr = rest;
 printf("      >> saved argv: %s\n", argv[argc]);
