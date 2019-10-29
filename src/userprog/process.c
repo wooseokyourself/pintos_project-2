@@ -100,6 +100,7 @@ start_process (void *file_name_)
 int
 process_wait (tid_t child_tid UNUSED) 
 {
+  for (int i=0; i<100000000; i++);
   return -1;
 }
 
@@ -405,7 +406,7 @@ validate_segment (const struct Elf32_Phdr *phdr, struct file *file)
      it then user code that passed a null pointer to system calls
      could quite likely panic the kernel by way of null pointer
      assertions in memcpy(), etc. */
-  if (phdr->p_vaddr < PGSIZE)
+  if (phdr->p_offset < PGSIZE)
     return false;
 
   /* It's okay. */
@@ -526,7 +527,7 @@ setup_stack (void **esp, char **argv, int argc)
         // 리턴어드레스의 크기는 4란다.
         *esp -= sizeof (void (*)());
         *(int*)*esp = 0;
-
+        hex_dump (*esp, *esp, 100, 1);
         // MYCODE_END
       }
       else
