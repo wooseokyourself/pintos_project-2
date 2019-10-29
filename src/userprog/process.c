@@ -62,6 +62,7 @@ process_execute (const char *file_name)
 static void
 start_process (void *file_name_)
 {
+  printf(" >> start_process() start!\n");
   char *file_name = file_name_;
   struct intr_frame if_;
   bool success;
@@ -220,7 +221,8 @@ static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
    Returns true if successful, false otherwise. */
 bool
 load (const char *file_name, void (**eip) (void), void **esp) 
-{
+{ 
+  printf(" >> load() start!\n");
   struct thread *t = thread_current ();
   struct Elf32_Ehdr ehdr;
   struct file *file = NULL;
@@ -228,20 +230,23 @@ load (const char *file_name, void (**eip) (void), void **esp)
   bool success = false;
   int i;
 
+  printf("    >> Allocate and activate page directory. \n ");
   /* Allocate and activate page directory. */
+  printf("    >> invoking pagedir_create()\n");
   t->pagedir = pagedir_create ();
   if (t->pagedir == NULL) 
     goto done;
+  printf("    >> invoking process_activate()\n");
   process_activate ();
 
+  printf("    >> MYCODE_START\n");
   // MYCODE_START
   // using strtok_r reference: https://codeday.me/ko/qa/20190508/495336.html
   char *ptr; // make q point to start of file_name.
   char *rest; // to point to the rest of the string after token extraction.
   char *token; // to point to the actual token returned.
-
-  strlcpy (ptr, file_name, PGSIZE);
-
+  printf("    >> ptr = file_name;\n");  
+  ptr = file_name;  
   char **argv;
   int argc = -1;
   /*
@@ -252,9 +257,13 @@ load (const char *file_name, void (**eip) (void), void **esp)
   */
 
   // loop untill strtok_r return NULL
+  printf("    >> going to while loop\n");
   while (token = strtok_r(ptr, " ", &rest))
   {
-    argv[++argc] = token; // address of each word are pushed into argv.
+    argc = argc + 1;
+    printf("    >> here is while loop!\n");
+    argv[argc] = token; // address of each word are pushed into argv.
+    printf("    >> argv[argc] assigned\n");
     ptr = rest;
     printf("saved argv: %s\n", argv[argc]);
     printf("updated argc: %d\n", argc);
