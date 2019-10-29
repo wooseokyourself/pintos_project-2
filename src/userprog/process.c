@@ -44,11 +44,11 @@ process_execute (const char *file_name)
   tid = thread_create (file_name, PRI_DEFAULT, start_process, fn_copy);
   */
 
-  /* PLAN
+  // PLAN
   // file_name 의 첫 인자가 진짜 file name 이다.
-  char* token = strtok_r(file_name, " ", &save_ptr); << 여기에 save_ptr 대신 NULL을 넣어도 무방함. save_ptr은 이후 안쓰임. 함 해보까?
+  char* token = strtok_r(file_name, " ", NULL); // 여기에 &save_ptr 대신 NULL을 넣어도 무방함. save_ptr은 이후 안쓰임. 함 해보까?
   tid = thread_create (token, PRI_DEFAULT, start_process, fn_copy);
-  */
+  
 
   if (tid == TID_ERROR)
     palloc_free_page (fn_copy); 
@@ -66,7 +66,7 @@ start_process (void *file_name_)
 
   /* Initialize interrupt frame and load executable. */
   memset (&if_, 0, sizeof if_);
-  if_.gs = if_.fs = if_.es = if_.ds = if_.ss = SEL_UDSEG;
+  if_.gs = if_.fs = if_.es = if_.ds = if_.ss = SEL_UDSEG; // User data selector(뭔가 단위인듯)
   if_.cs = SEL_UCSEG;
   if_.eflags = FLAG_IF | FLAG_MBS;
   success = load (file_name, &if_.eip, &if_.esp);
@@ -205,7 +205,7 @@ struct Elf32_Phdr
 #define PF_W 2          /* Writable. */
 #define PF_R 4          /* Readable. */
 
-static bool setup_stack (void **esp);
+static bool setup_stack (void **esp, char **argv, int argc);
 static bool validate_segment (const struct Elf32_Phdr *, struct file *);
 static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
                           uint32_t read_bytes, uint32_t zero_bytes,
@@ -231,31 +231,36 @@ load (const char *file_name, void (**eip) (void), void **esp)
     goto done;
   process_activate ();
 
-  /* PLAN
+  // MYCODE_START
   // using strtok_r reference: https://codeday.me/ko/qa/20190508/495336.html
-  char* ptr = palloc_get_page(0); // make q point to start of file_name.
-  char* rest; // to point to the rest of the string after token extraction.
-  char* token; // to point to the actual token returned.
+  char *ptr = palloc_get_page(0); // make q point to start of file_name.
+  char *rest; // to point to the rest of the string after token extraction.
+  char *token; // to point to the actual token returned.
 
-  strcpy(ptr, file_name, PGSIZE);
+  strlcpy (ptr, file_name, PGSIZE);
   
-  char** argv;
+  char **argv;
   int argc = 0;
 
-  // argv[0] = 프로그램의 경로
-  // argv[1] = 첫 번째 인자
-  // argv[2] = 두 번째 인자
+  /*
+  argv[0] = prog_name
+  argv[1] = 1st arg
+  argv[2] = 2nd arg
+  ...
+  */
   
   // loop untill strtok_r return NULL
-  while(token = strtok_r(ptr, " ", &rest)){
+  while (token = strtok_r(ptr, " ", &rest)){
     argv[argc] = token; // address of each word are pushed into argv.
     ptr = rest;
     argc++;
   }
-  */
+  // MYCODE_END
+  
 
   /* Open executable file. */
-  file = filesys_open (file_name);
+  // file = filesys_open (file_name); PREV_CODE
+  file = filesys_open (argv[0]); // MYCODE
   if (file == NULL) 
     {
       printf ("load: %s: open failed\n", file_name);
@@ -339,11 +344,11 @@ load (const char *file_name, void (**eip) (void), void **esp)
     goto done;
   */
 
- /* PLAN
+ // MYCODE_START
   // set up stack
   if (!setup_stack (esp, argv, argc))
     goto done;
- */
+ // MYCODE_END
 
   /* Start address. */
   *eip = (void (*) (void)) ehdr.e_entry;
@@ -467,7 +472,7 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 /* Create a minimal stack by mapping a zeroed page at the top of
    user virtual memory. */
 static bool
-setup_stack (void **esp) 
+setup_stack (void **esp, char **argv, int argc) 
 {
   uint8_t *kpage;
   bool success = false;
@@ -476,11 +481,52 @@ setup_stack (void **esp)
   if (kpage != NULL) 
     {
       success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
-      if (success)
-        *esp = PHYS_BASE;
-        /* PLAN
-          여기에 스택 push 구현해야함
+      if (success){
+        *esp = PHYS_BASE; // initialize sp
+        // MYCODE_START
+
+        /* push command line (in argv) value.
+
+            ls      -l      foo      bar
+          argv[0]   [1]     [2]      [3]
+
+          these will be pushed in right-to-left order.
+          each size is (strlen (argv[i])) + 1
         */
+        for (int i = argc - 1; i >= 0; i--)
+        {
+          *esp -= (strlen (argv[i])) + 1;
+          memcpy (*esp, argv[i], (strlen (argv[i]) + 1) );
+        }
+
+        /* push word-align. */
+        *esp -= sizeof (char*);
+        *(uint8_t*)*esp = 0;
+
+        /* push address of argv[i]. */
+        *esp -= sizeof (char*);
+        *(char**)*esp = 0;
+        for (int i = argc - 1; i >= 0; i--)
+        {
+          *esp -= sizeof (char*);
+          *(char**)*esp = argv[i];
+        }
+
+        /* push address of argv. */
+        *esp -= sizeof (char**);
+        *(char***)*esp = argv;
+
+        /* push the value of argc. */
+        *esp -= sizeof (int);
+        memcpy (*esp, argc, sizeof(argc));
+
+        /* push return address. */
+        // 리턴어드레스의 크기는 4란다.
+        *esp -= sizeof (void (*)());
+        *(int*)*esp = 0;
+
+        // MYCODE_END
+      }
       else
         palloc_free_page (kpage);
     }
