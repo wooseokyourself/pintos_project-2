@@ -118,11 +118,13 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
   현재 "src/utils" 에서는 make 해 놓은 상태임. 앞으로 코드를 수정할 때마다 "src/userprog" 에서 make 후, build 디렉토리로 가서 
   
   > pintos-mkdisk filesys.dsk --filesys-size=2
+  
   > pintos -f -q
   
   를 통해 파일시스템을 위한 디스크(?)를 만들어주고, 
   
   > pintos -p ../../examples/echo -a echo -- -q
+  
   > pintos -q run ’echo x’
   
   를 통해 echo 파일의 실행을 성공시키는 방향으로 진행할 것.
