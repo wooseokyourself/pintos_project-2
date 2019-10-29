@@ -236,27 +236,28 @@ load (const char *file_name, void (**eip) (void), void **esp)
 
   // MYCODE_START
   // using strtok_r reference: https://codeday.me/ko/qa/20190508/495336.html
-  char *ptr = palloc_get_page(0); // make q point to start of file_name.
+  char *ptr; // make q point to start of file_name.
   char *rest; // to point to the rest of the string after token extraction.
   char *token; // to point to the actual token returned.
 
   strlcpy (ptr, file_name, PGSIZE);
-  
-  char **argv;
-  int argc = 0;
 
+  char **argv;
+  int argc = -1;
   /*
   argv[0] = prog_name
   argv[1] = 1st arg
   argv[2] = 2nd arg
   ...
   */
-  
+
   // loop untill strtok_r return NULL
-  while (token = strtok_r(ptr, " ", &rest)){
-    argv[argc] = token; // address of each word are pushed into argv.
+  while (token = strtok_r(ptr, " ", &rest))
+  {
+    argv[++argc] = token; // address of each word are pushed into argv.
     ptr = rest;
-    argc++;
+    printf("saved argv: %s\n", argv[argc]);
+    printf("updated argc: %d\n", argc);
   }
   // MYCODE_END
   
