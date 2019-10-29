@@ -113,6 +113,19 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
   >>> 가령, 초기 스택포인터를 초기화하는 것은 ```*esp = PHYS_BASE;``` 이다. 이후 차례로 넣고자하는 녀석의 크기만큼 스택을 확장해준뒤(가령 ```argv[i]```에 있는 한 단어를 넣고자 한다면, 하나의 문자는 1바이트이므로 확장해야 하는 스택의 사이즈는 ```argv[i]```의 사이즈가 되며, 이는 ```strlen[i]+1``` 이다(```'\0'```도 포함). 즉 ```*esp -= (strlen(argv[i]))+1 ```을 이용하여 스택 확장), 주소를 넣고자 한다면 ```*(int*)*esp = argc;```, 내용을 복사하여 넣고 싶다면 ```memcpy(*esp, argv[i], strlen(argv[i])+1);``` 처럼 한다.
   
   >>> return address의 크기는 4이며, ```*(int*)*esp = 0;``` 이다.
+  
+  #### 구현 및 디버깅
+  현재 "src/utils" 에서는 make 해 놓은 상태임. 앞으로 코드를 수정할 때마다 "src/userprog" 에서 make 후, build 디렉토리로 가서 
+  
+  > pintos-mkdisk filesys.dsk --filesys-size=2
+  > pintos -f -q
+  
+  를 통해 파일시스템을 위한 디스크(?)를 만들어주고, 
+  
+  > pintos -p ../../examples/echo -a echo -- -q
+  > pintos -q run ’echo x’
+  
+  를 통해 echo 파일의 실행을 성공시키는 방향으로 진행할 것.
 
 
 ### 3. System Call
