@@ -222,7 +222,7 @@ static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
 bool
 load (const char *file_name, void (**eip) (void), void **esp) 
 { 
-  printf(" >> load() start!\n");
+printf(" >> load() start!\n");
   struct thread *t = thread_current ();
   struct Elf32_Ehdr ehdr;
   struct file *file = NULL;
@@ -230,45 +230,55 @@ load (const char *file_name, void (**eip) (void), void **esp)
   bool success = false;
   int i;
 
-  printf("    >> Allocate and activate page directory. \n ");
   /* Allocate and activate page directory. */
-  printf("    >> invoking pagedir_create()\n");
   t->pagedir = pagedir_create ();
   if (t->pagedir == NULL) 
     goto done;
-  printf("    >> invoking process_activate()\n");
   process_activate ();
 
-  printf("    >> MYCODE_START\n");
+printf("    >> MYCODE_START\n");
   // MYCODE_START
   // using strtok_r reference: https://codeday.me/ko/qa/20190508/495336.html
   char *ptr; // make q point to start of file_name.
   char *rest; // to point to the rest of the string after token extraction.
   char *token; // to point to the actual token returned.
-  printf("    >> ptr = file_name;\n");  
-  ptr = file_name;  
-  char **argv;
-  int argc = -1;
+  ptr = file_name;
   /*
   argv[0] = prog_name
   argv[1] = 1st arg
   argv[2] = 2nd arg
   ...
   */
-
-  // loop untill strtok_r return NULL
-  printf("    >> going to while loop\n");
+   
+  char **argv;
+  int argc = 0;
+  /* Get argc's length. */
   while (token = strtok_r(ptr, " ", &rest))
   {
-    argc = argc + 1;
-    printf("    >> here is while loop!\n");
+    argc++;
+printf("    >> argc: %d\n", argc);
+  }
+  
+  argv = (char **)malloc(sizeof(char *) * argc);
+
+  ptr = file_name;
+  // loop untill strtok_r return NULL
+  while (token = strtok_r(ptr, " ", &rest))
+  {
     argv[argc] = token; // address of each word are pushed into argv.
-    printf("    >> argv[argc] assigned\n");
+    /*
+                  argv에 메모리 할당이 안되어있어서 이런식으로 token 넣기 불가.
+                  해결해야 할 점
+                  1. *argv의 사이즈를 알기 위해 먼저 *file_name의 토큰추출횟수를 구한다.
+                  2. 그 횟수를 argc로 하고, *argv를 argc 사이즈로 동적할당한다.
+                  3. 현재 이 while문을 진행한다. 
+    */
     ptr = rest;
-    printf("saved argv: %s\n", argv[argc]);
-    printf("updated argc: %d\n", argc);
+printf("      >> saved argv: %s\n", argv[argc]);
+printf("      >> updated argc: %d\n", argc);
   }
   // MYCODE_END
+printf("    >> MYCODE_END\n");
   
 
   /* Open executable file. */
@@ -539,6 +549,9 @@ setup_stack (void **esp, char **argv, int argc)
         *(int*)*esp = 0;
         hex_dump (*esp, *esp, 100, 1);
         // MYCODE_END
+
+        if (argv != NULL)
+          free (argv);
       }
       else
         palloc_free_page (kpage);
