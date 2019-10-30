@@ -257,6 +257,7 @@ printf("    >> MYCODE_START\n");
   printf("  >> Get argc's length; while loop.\n");
   token = strtok_r (ptr, " ", &rest);
   argc ++;
+  ptr = rest;
   while (token != NULL)
   {
     token = strtok_r (ptr, " ", &rest);
