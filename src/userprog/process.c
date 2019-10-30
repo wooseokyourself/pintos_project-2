@@ -242,7 +242,13 @@ printf("    >> MYCODE_START\n");
   char *ptr; // make q point to start of file_name.
   char *rest; // to point to the rest of the string after token extraction.
   char *token; // to point to the actual token returned.
-  ptr = file_name;
+
+  /* init cpy_file_name for calculating argc. */
+  char *cpy_file_name = (char *)malloc (sizeof (file_name));
+  strcpy (cpy_file_name, file_name);
+
+  ptr = cpy_file_name;
+
   /*
   argv[0] = prog_name
   argv[1] = 1st arg
@@ -267,7 +273,8 @@ printf("    >> obtd token: %s\n", token);
 printf("    >> argc: %d\n", argc);
     ptr = rest;
   }
-  
+  free (cpy_file_name);
+
   argv = (char **)malloc(sizeof(char *) * argc);
 
   ptr = file_name;
