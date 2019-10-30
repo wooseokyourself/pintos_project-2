@@ -557,6 +557,8 @@ printf(" >> setup_stack() invoked! \n");
       if (success){
         *esp = PHYS_BASE; // initialize sp
         // MYCODE_START
+printf("MYCODE_START\n");
+printf("  >> passed argc: %d\n", argc);
 
         /* push command line (in argv) value.
 
@@ -566,8 +568,10 @@ printf(" >> setup_stack() invoked! \n");
           these will be pushed in right-to-left order.
           each size is (strlen (argv[i])) + 1
         */
+printf("  >> for loop pushing argv execute.\n");
         for (int i = argc - 1; i >= 0; i--)
         {
+printf("  >> i: %d\n", i);
           *esp -= (strlen (argv[i])) + 1;
           memcpy (*esp, argv[i], (strlen (argv[i]) + 1) );
         }
@@ -598,6 +602,7 @@ printf(" >> setup_stack() invoked! \n");
         *esp -= sizeof (void (*)());
         *(int*)*esp = 0;
         hex_dump (*esp, *esp, 100, 1);
+printf("MYCODE_END\n");
         // MYCODE_END
 
         if (argv != NULL)
