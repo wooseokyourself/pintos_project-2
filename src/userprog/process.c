@@ -263,6 +263,7 @@ printf("    >> MYCODE_START\n");
 printf("    >> obtained token: %s\n", token);
     argc ++;
 printf("    >> argc: %d\n", argc);
+    ptr = rest;
   }
   
   argv = (char **)malloc(sizeof(char *) * argc);
