@@ -255,12 +255,14 @@ printf("    >> MYCODE_START\n");
   /* Get argc's length. */
   printf("  >> Get argc's length; while loop.\n");
   token = strtok_r (ptr, " ", &rest);
+printf("    >> obtd token: %s\n", token);
   argc ++;
+printf("    >> argc: %d\n", argc);
   ptr = rest;
   while (token != NULL)
   {
     token = strtok_r (ptr, " ", &rest);
-printf("    >> obtained token: %s\n", token);
+printf("    >> obtd token: %s\n", token);
     argc ++;
 printf("    >> argc: %d\n", argc);
     ptr = rest;
@@ -271,14 +273,6 @@ printf("    >> argc: %d\n", argc);
   ptr = file_name;
   // loop untill strtok_r return NULL
    
-  /*
-                  argv에 메모리 할당이 안되어있어서 이런식으로 token 넣기 불가.
-                  해결해야 할 점
-                  1. *argv의 사이즈를 알기 위해 먼저 *file_name의 토큰추출횟수를 구한다.
-                  2. 그 횟수를 argc로 하고, *argv를 argc 사이즈로 동적할당한다.
-                  3. 현재 이 while문을 진행한다. 
-                   >> 이렇게 했으나 위 argc 사이즈 구하는 while문에서 echo만 무한출력하는 무한루프 발생
-  */
   int i = 0;
   token = strtok_r (ptr, " ", &rest);
   argv[i++] = token;
