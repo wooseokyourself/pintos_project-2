@@ -101,7 +101,12 @@ start_process (void *file_name_)
 int
 process_wait (tid_t child_tid UNUSED) 
 {
-  for (int i=0; i<100000000; i++);
+  /* This busy-wait loop is for debugging. */
+  int i=0;
+  int j=0;
+  for (i=0; i<100000000; i++)
+    j ++;
+
   return -1;
 }
 
@@ -359,6 +364,7 @@ printf("    >> MYCODE_END\n");
               uint32_t read_bytes, zero_bytes;
               if (phdr.p_filesz > 0)
                 {
+printf(" >> header is not 0 \n");
                   /* Normal segment.
                      Read initial part from disk and zero the rest. */
                   read_bytes = page_offset + phdr.p_filesz;
@@ -367,14 +373,17 @@ printf("    >> MYCODE_END\n");
                 }
               else 
                 {
+printf(" >> header is 0 \n");
                   /* Entirely zero.
                      Don't read anything from disk. */
                   read_bytes = 0;
                   zero_bytes = ROUND_UP (page_offset + phdr.p_memsz, PGSIZE);
                 }
               if (!load_segment (file, file_page, (void *) mem_page,
-                                 read_bytes, zero_bytes, writable))
+                                 read_bytes, zero_bytes, writable)){
+printf(" >> load_segment() failed! \n");
                 goto done;
+                                 }
             }
           else
             goto done;
