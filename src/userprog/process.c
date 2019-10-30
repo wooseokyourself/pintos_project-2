@@ -473,7 +473,7 @@ printf("    ! validate_segment() false: 6 \n");
      it then user code that passed a null pointer to system calls
      could quite likely panic the kernel by way of null pointer
      assertions in memcpy(), etc. */
-  if (phdr->p_offset < PGSIZE){ 
+  if (phdr->p_vaddr < PGSIZE){ 
 printf("    ! validate_segment() false: 7 \n");
     return false; 
   }
