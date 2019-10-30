@@ -568,12 +568,18 @@ printf("  >> passed argc: %d\n", argc);
           these will be pushed in right-to-left order.
           each size is (strlen (argv[i])) + 1
         */
+
+        int length = 0;
 printf("  >> for loop pushing argv execute.\n");
         for (int i = argc - 1; i >= 0; i--)
         {
 printf("  >> i: %d\n", i);
-          *esp -= (strlen (argv[i])) + 1;
-          memcpy (*esp, argv[i], (strlen (argv[i]) + 1) );
+          length = strlen (argv[i]);
+printf("  >> length: &d\n", length);
+          *esp -= length + 1 ;
+          // memcpy (*esp, argv[i], (strlen (argv[i]) + 1) );
+          strlcpy (*esp, argv[i], length + 1);
+          argv[i] = *esp;
         }
 
         /* push word-align. */
