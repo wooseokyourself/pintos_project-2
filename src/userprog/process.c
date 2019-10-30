@@ -267,8 +267,8 @@ printf("    >> MYCODE_START\n");
   printf("  >> Get argc's length; while loop.\n");
   token = strtok_r (ptr, " ", &rest);
 printf("    >> obtd token: %s\n", token);
-  argc ++;
 printf("    >> argc: %d\n", argc);
+  argc ++;
   ptr = rest;
   while (token != NULL)
   {
@@ -278,6 +278,7 @@ printf("    >> obtd token: %s\n", token);
 printf("    >> argc: %d\n", argc);
     ptr = rest;
   }
+  argc --;
   free (cpy_file_name);
 
   argv = (char **)malloc(sizeof(char *) * argc);
