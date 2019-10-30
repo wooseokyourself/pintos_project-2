@@ -617,8 +617,8 @@ printf("  >> push address of argv[i] finished / push address of argv start\n");
 printf("  >> push address of argv finished / push the value of argc start\n");
 
         /* push the value of argc. */
-        *esp -= sizeof (int);
-        memcpy (*esp, argc, sizeof(argc));
+        *esp -= sizeof (uint32_t);
+        **(uint32_t **)esp = argc;
 
 printf("  >> push the value of argc finished / push return address start\n");
 
