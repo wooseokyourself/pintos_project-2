@@ -403,21 +403,26 @@ printf(" >> validate_segment() return false!\n ");
   */
 
  // MYCODE_START
-printf("MYCODE_START\n");
+printf("MYCODE_START ; invoking setup_stack()... \n");
   // set up stack
-  if (!setup_stack (esp, argv, argc))
+  if (!setup_stack (esp, argv, argc)){
+printf("MYCODE_END ; setup_stack() returns false \n");
     goto done;
-printf("MYCODE_END\n");
+  }
+printf("MYCODE_END ; setup_stack() returns success! \n");
  // MYCODE_END
 
   /* Start address. */
+
   *eip = (void (*) (void)) ehdr.e_entry;
 
   success = true;
 
  done:
   /* We arrive here whether the load is successful or not. */
+printf("  >> invoking file_cloes (file) ... \n");
   file_close (file);
+printf("  >> file_cloes (file) clear. load() returns success! \n");
   return success;
 }
 
