@@ -585,14 +585,19 @@ printf("  >> length of argv[i]: %d\n", length);
           argv[i] = *esp;
         }
 
+printf("  >> push command line finished / push word-align start\n");
         /* push word-align. */
         while ( (PHYS_BASE - *esp) % 4 != 0 )
           *esp -= sizeof (uint8_t);
         *(uint8_t*)*esp = 0;
 
+printf("  >> push word-align finished / push NULL start\n");
+
         /* push NULL */
         *esp -= 4;
         **(uint32_t **)esp = 0;
+
+printf("  >> push NULL finished / push address of argv[i] start\n");
 
         /* push address of argv[i]. */
         *esp -= sizeof (char*);
@@ -603,19 +608,27 @@ printf("  >> length of argv[i]: %d\n", length);
           *(char**)*esp = argv[i];
         }
 
+printf("  >> push address of argv[i] finished / push address of argv start\n");
+
         /* push address of argv. */
         *esp -= sizeof (char**);
         *(char***)*esp = argv;
 
+printf("  >> push address of argv finished / push the value of argc start\n");
+
         /* push the value of argc. */
         *esp -= sizeof (int);
         memcpy (*esp, argc, sizeof(argc));
+
+printf("  >> push the value of argc finished / push return address start\n");
 
         /* push return address. */
         // 리턴어드레스의 크기는 4란다.
         *esp -= sizeof (void (*)());
         *(int*)*esp = 0;
         hex_dump (*esp, *esp, 100, 1);
+
+printf("  >> push return address finished / free(argv) start\n");
 printf("MYCODE_END\n");
         // MYCODE_END
 
