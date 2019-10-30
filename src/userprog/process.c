@@ -254,9 +254,10 @@ printf("    >> MYCODE_START\n");
   char **argv;
   int argc = 0;
   /* Get argc's length. */
-  while (token = strtok_r(ptr, " ", &rest))
+  printf("  >> Get argc's length; while loop.\n");
+  while (token != NULL)
   {
-printf("  >> Get argc's length; while loop.\n");
+    token = strtok_r(ptr, " ", &rest);
 printf("    >> obtained token: %s\n", token);
     argc++;
 printf("    >> argc: %d\n", argc);
@@ -266,8 +267,9 @@ printf("    >> argc: %d\n", argc);
 
   ptr = file_name;
   // loop untill strtok_r return NULL
-  while (token = strtok_r(ptr, " ", &rest))
+  while (token != NULL)
   {
+    token = strtok_r(ptr, " ", &rest);
     argv[argc] = token; // address of each word are pushed into argv.
     /*
                   argv에 메모리 할당이 안되어있어서 이런식으로 token 넣기 불가.
