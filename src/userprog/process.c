@@ -104,7 +104,7 @@ process_wait (tid_t child_tid UNUSED)
   /* This busy-wait loop is for debugging. */
   int i=0;
   int j=0;
-  for (i=0; i<100000000; i++)
+  for (i=0; i<1000000000; i++)
     j ++;
 
   return -1;
