@@ -229,7 +229,6 @@ printf("   >> *file_name = %s\n", file_name);
   struct file *file = NULL;
   off_t file_ofs;
   bool success = false;
-  int i;
 
   /* Allocate and activate page directory. */
   t->pagedir = pagedir_create ();
