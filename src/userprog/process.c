@@ -388,9 +388,11 @@ printf("    >> MYCODE_END\n");
   */
 
  // MYCODE_START
+printf("MYCODE_START\n");
   // set up stack
   if (!setup_stack (esp, argv, argc))
     goto done;
+printf("MYCODE_END\n");
  // MYCODE_END
 
   /* Start address. */
@@ -517,6 +519,7 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 static bool
 setup_stack (void **esp, char **argv, int argc) 
 {
+printf(" >> setup_stack() invoked! \n");
   uint8_t *kpage;
   bool success = false;
 
