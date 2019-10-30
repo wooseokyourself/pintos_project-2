@@ -280,14 +280,21 @@ printf("    >> argc: %d\n", argc);
                   3. 현재 이 while문을 진행한다. 
                    >> 이렇게 했으나 위 argc 사이즈 구하는 while문에서 echo만 무한출력하는 무한루프 발생
   */
-  for (int i=0; i<argc; i++)
-  {
-    token = strtok_r(ptr, " ", &rest);
-    argv[argc] = token;
-    ptr = rest;
+  int i = 0;
+  token = strtok_r (ptr, " ", &rest);
+  argv[i++] = token;
 printf("      >> saved argv: %s\n", argv[argc]);
-printf("      >> updated argc: %d\n", argc);
+printf("      >> i: %d\n", i);
+  ptr = rest;
+  while (i != argc)
+  {
+    token = strtok_r (ptr, " ", &rest);
+    argv[i++] = token;
+printf("      >> saved argv: %s\n", argv[argc]);
+printf("      >> i: %d\n", i);
+    ptr = rest;
   }
+  
   // MYCODE_END
 printf("    >> MYCODE_END\n");
   
