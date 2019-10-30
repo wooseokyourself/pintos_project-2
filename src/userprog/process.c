@@ -302,13 +302,14 @@ printf("      >> i: %d\n", i);
     i ++;
     ptr = rest;
   }
-  
+
   // MYCODE_END
 printf("    >> MYCODE_END\n");
   
 
   /* Open executable file. */
   // file = filesys_open (file_name); PREV_CODE
+printf("    >> argv[0]'s size: %d\n", sizeof (argv[0]));
   file = filesys_open (argv[0]); // MYCODE
   if (file == NULL) 
     {
