@@ -282,16 +282,18 @@ printf("    >> argc: %d\n", argc);
    
   int i = 0;
   token = strtok_r (ptr, " ", &rest);
-  argv[i++] = token;
-printf("      >> saved argv: %s\n", argv[argc]);
+  argv[i] = token;
+printf("      >> saved argv: %s\n", argv[i]);
 printf("      >> i: %d\n", i);
+  i ++;
   ptr = rest;
   while (i != argc)
   {
     token = strtok_r (ptr, " ", &rest);
-    argv[i++] = token;
-printf("      >> saved argv: %s\n", argv[argc]);
+    argv[i] = token;
+printf("      >> saved argv: %s\n", argv[i]);
 printf("      >> i: %d\n", i);
+    i ++;
     ptr = rest;
   }
   
