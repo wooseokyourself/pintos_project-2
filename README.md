@@ -119,11 +119,15 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
   
   > pintos-mkdisk filesys.dsk --filesys-size=2
   
+  >> mkdisk 로 단축키 지정함.
+  
   > pintos -f -q
   
   를 통해 파일시스템을 위한 디스크(?)를 만들어주고, 
   
   > pintos -p ../../examples/echo -a echo -- -q
+  
+  >> useecho 로 단축키 지정함.
   
   > pintos -q run ’echo x’
   
