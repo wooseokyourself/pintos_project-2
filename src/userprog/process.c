@@ -267,18 +267,19 @@ printf("    >> MYCODE_START\n");
   printf("  >> Get argc's length; while loop.\n");
   token = strtok_r (ptr, " ", &rest);
 printf("    >> obtd token: %s\n", token);
-printf("    >> argc: %d\n", argc);
+printf("       in argc: %d\n", argc);
   argc ++;
   ptr = rest;
   while (token != NULL)
   {
     token = strtok_r (ptr, " ", &rest);
 printf("    >> obtd token: %s\n", token);
+printf("       in argc: %d\n", argc);
     argc ++;
-printf("    >> argc: %d\n", argc);
     ptr = rest;
   }
   argc --;
+printf("    >> summery argc: %d\n", argc);
   free (cpy_file_name);
 
   argv = (char **)malloc(sizeof(char *) * argc);
@@ -577,7 +578,7 @@ printf("  >> for loop pushing argv execute.\n");
         {
 printf("  >> i: %d\n", i);
           length = strlen (argv[i]);
-printf("  >> length: &d\n", length);
+printf("  >> length of argv[i]: %d\n", length);
           *esp -= length + 1 ;
           // memcpy (*esp, argv[i], (strlen (argv[i]) + 1) );
           strlcpy (*esp, argv[i], length + 1);
@@ -585,8 +586,13 @@ printf("  >> length: &d\n", length);
         }
 
         /* push word-align. */
-        *esp -= sizeof (char*);
+        while ( (PHYS_BASE - *esp) % 4 != 0 )
+          *esp -= sizeof (uint8_t);
         *(uint8_t*)*esp = 0;
+
+        /* push NULL */
+        *esp -= 4;
+        **(uint32_t **)esp = 0;
 
         /* push address of argv[i]. */
         *esp -= sizeof (char*);
