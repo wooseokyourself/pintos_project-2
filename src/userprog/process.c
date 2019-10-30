@@ -332,6 +332,7 @@ printf("    >> MYCODE_END\n");
   file_ofs = ehdr.e_phoff;
   for (i = 0; i < ehdr.e_phnum; i++) 
     {
+printf("  >> inside for? \n" );
       struct Elf32_Phdr phdr;
 
       if (file_ofs < 0 || file_ofs > file_length (file))
