@@ -245,7 +245,7 @@ printf("    >> MYCODE_START\n");
 
   /* init cpy_file_name for calculating argc. */
   char *cpy_file_name = (char *)malloc (sizeof (file_name));
-  strcpy (cpy_file_name, file_name);
+  strlcpy (cpy_file_name, file_name, strlen(file_name) + 1);
 
   ptr = cpy_file_name;
 
