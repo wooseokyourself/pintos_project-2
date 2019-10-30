@@ -386,8 +386,10 @@ printf(" >> load_segment() failed! \n");
                 goto done;
                                  }
             }
-          else
+          else{
+printf(" >> validate_segment() return false!\n ");
             goto done;
+          }
           break;
         }
     }
@@ -426,40 +428,55 @@ static bool
 validate_segment (const struct Elf32_Phdr *phdr, struct file *file) 
 {
   /* p_offset and p_vaddr must have the same page offset. */
-  if ((phdr->p_offset & PGMASK) != (phdr->p_vaddr & PGMASK)) 
+  if ((phdr->p_offset & PGMASK) != (phdr->p_vaddr & PGMASK)){ 
+printf("    ! validate_segment() false: 0 \n");
     return false; 
+  }
 
   /* p_offset must point within FILE. */
-  if (phdr->p_offset > (Elf32_Off) file_length (file)) 
-    return false;
+  if (phdr->p_offset > (Elf32_Off) file_length (file)){ 
+printf("    ! validate_segment() false: 1 \n");
+    return false; 
+  }
 
   /* p_memsz must be at least as big as p_filesz. */
-  if (phdr->p_memsz < phdr->p_filesz) 
+  if (phdr->p_memsz < phdr->p_filesz){ 
+printf("    ! validate_segment() false: 2 \n");
     return false; 
+  }
 
   /* The segment must not be empty. */
-  if (phdr->p_memsz == 0)
-    return false;
+  if (phdr->p_memsz == 0){ 
+printf("    ! validate_segment() false: 3 \n");
+    return false; 
+  }
   
   /* The virtual memory region must both start and end within the
      user address space range. */
-  if (!is_user_vaddr ((void *) phdr->p_vaddr))
-    return false;
-  if (!is_user_vaddr ((void *) (phdr->p_vaddr + phdr->p_memsz)))
-    return false;
-
+  if (!is_user_vaddr ((void *) phdr->p_vaddr)){ 
+printf("    ! validate_segment() false: 4 \n");
+    return false; 
+  }
+  if (!is_user_vaddr ((void *) (phdr->p_vaddr + phdr->p_memsz))){ 
+printf("    ! validate_segment() false: 5 \n");
+    return false; 
+  }
   /* The region cannot "wrap around" across the kernel virtual
      address space. */
-  if (phdr->p_vaddr + phdr->p_memsz < phdr->p_vaddr)
-    return false;
+  if (phdr->p_vaddr + phdr->p_memsz < phdr->p_vaddr){ 
+printf("    ! validate_segment() false: 6 \n");
+    return false; 
+  }
 
   /* Disallow mapping page 0.
      Not only is it a bad idea to map page 0, but if we allowed
      it then user code that passed a null pointer to system calls
      could quite likely panic the kernel by way of null pointer
      assertions in memcpy(), etc. */
-  if (phdr->p_offset < PGSIZE)
-    return false;
+  if (phdr->p_offset < PGSIZE){ 
+printf("    ! validate_segment() false: 7 \n");
+    return false; 
+  }
 
   /* It's okay. */
   return true;
