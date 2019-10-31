@@ -22,6 +22,7 @@ static thread_func start_process NO_RETURN;
 static bool load (const char *cmdline, void (**eip) (void), void **esp);
 
 // MYCODE_START
+/* These are defined in threads/thread.c */
 extern struct condition cond_list;
 extern struct list opened_file_list;
 extern struct lock tid_lock;

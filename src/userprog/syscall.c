@@ -5,7 +5,11 @@
 #include "threads/thread.h"
 #include "filesys/filesys.h"
 
+/* Defined in threads/thread.c */
+extern struct list opened_file_list;
+
 static void syscall_handler (struct intr_frame *);
+struct file *getfile (int fd);
 
 void
 syscall_init (void) 
