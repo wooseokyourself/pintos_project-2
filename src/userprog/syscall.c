@@ -4,6 +4,7 @@
 #include "threads/interrupt.h"
 #include "threads/thread.h"
 #include "filesys/filesys.h"
+#include "filesys/file.h"
 
 /* These are defined in threads/thread.c */
 extern struct list opened_file_list;
