@@ -9,7 +9,6 @@
 extern struct list opened_file_list;
 extern int file_open_count;
 
-static void syscall_handler (struct intr_frame *);
 struct file *getfile (int fd);
 
 void
@@ -21,12 +20,12 @@ printf("syscall_init END!\n");
 }
 
 static void
-syscall_handler (struct intr_frame *f UNUSED) 
+syscall_handler (struct intr_frame *f) 
 {
   printf ("system call!\n");
 printf("syscall: %d\n", *(uint32_t *)(f->esp));
 hex_dump (f->esp, f->esp, 100, 1);
-  switch (*uint32_t *)(f->esp)
+  switch (*(uint32_t *)(f->esp))
   {
     case SYS_HALT:                   // args number: 0
       halt ();
@@ -49,11 +48,11 @@ hex_dump (f->esp, f->esp, 100, 1);
       break;
 
     case SYS_REMOVE:                 // args number: 1
-      remove ( (const char *)*(uint32_t)(f->esp + 4) );
+      remove ( (const char *)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_OPEN:                   // args number: 1
-      open ( (const char *)*(uint32_t)(f->esp + 4) );
+      open ( (const char *)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_FILESIZE:               // args number: 1
@@ -148,7 +147,8 @@ printf("  >> filesys_open(file) failed, return -1\n");
   else
   {
 printf("  >> filesys_open(file) success, return fd(%d)", file_open_count);
-    return_file->fd = file_open_count++;
+    return_file->fd = fills
+    e_open_count++;
     list_push_back (&opened_file_list, return_file->list_elem);
     return return_file->fd;
   }
