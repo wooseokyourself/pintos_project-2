@@ -192,7 +192,7 @@ filesize (int fd)
   if (f == NULL)
     return -1;
   else
-    return f->inode->data->length;
+    return f->inode->data.length;
 }
 
 int
