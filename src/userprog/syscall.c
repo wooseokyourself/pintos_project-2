@@ -19,6 +19,8 @@ static void
 syscall_handler (struct intr_frame *f UNUSED) 
 {
   printf ("system call!\n");
+printf("syscall: %d\n", *(uint32_t *)(f->esp));
+hex_dump (f->esp, f->esp, 100, 1);
   switch (*uint32_t *)(f->esp)
   {
     case SYS_HALT:                   // args number: 0
@@ -26,27 +28,27 @@ syscall_handler (struct intr_frame *f UNUSED)
       break;
 
     case SYS_EXIT:                   // args number: 1
-      exit( *(uint32_t *)(f->esp + 4) );
+      exit( (int)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_EXEC:                   // args number: 1
-      exec ();
+      exec ( (const char *)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_WAIT:                   // args number: 1
-      wait ();
+      wait ( (pid_t *)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_CREATE:                 // args number: 2
-      create ();
+      create ( (const char *)*(uint32_t *)(f->esp + 4), (unsigned *)*(uint32_t *)(f->esp + 8) );
       break;
 
     case SYS_REMOVE:                 // args number: 1
-      remove ();
+      remove ( (const char *)*(uint32_t)(f->esp + 4) );
       break;
 
     case SYS_OPEN:                   // args number: 1
-      open ();
+      open ( (const char *)*(uint32_t)(f->esp + 4) );
       break;
 
     case SYS_FILESIZE:               // args number: 1
@@ -54,7 +56,7 @@ syscall_handler (struct intr_frame *f UNUSED)
       break;
 
     case SYS_READ:                   // args number: 3
-      read ( (int)*(uint32_t *)(f->esp+4) );
+      read ( (int)*(uint32_t *)(f->esp+4), (void *)*(uint32_t *)(f->esp + 8), (unsigned)*((uint32_t *)(f->esp + 12)) );
       break;
 
     case SYS_WRITE:                  // args number: 3
@@ -62,7 +64,7 @@ syscall_handler (struct intr_frame *f UNUSED)
       break;
 
     case SYS_SEEK:                   // args number: 2
-      seek ( (int)*(uint32_t *)(f->esp+4) );
+      seek ( (int)*(uint32_t *)(f->esp+4), (unsigned)*((uint32_t *)(f->esp + 8)) );
       break;
 
     case SYS_TELL:                   // args number: 1
@@ -73,7 +75,7 @@ syscall_handler (struct intr_frame *f UNUSED)
       close ( (int)*(uint32_t *)(f->esp+4) );
       break;
   }
-  thread_exit ();
+  // thread_exit ();
 }
 
 void
@@ -163,7 +165,13 @@ read (int fd, void *buffer, unsigned size)
   if (fd == 0)
   {
     /* input_getc() 를 이용해 키보드 입력을 버퍼에 넣는다. 그리고 입력된 사이즈(bytes)를 리턴한다. */
-    return -1; // temp
+    int i;
+    for (i=0; i<size; i++)
+    {
+      if ( ( (char *)buffer)[i] == '\0')
+        break;
+    }
+    return i;
   }
   else
   {
@@ -182,7 +190,8 @@ write (int fd, const void *buffer, unsigned size) // 이거 내용 부정확하�
   if (fd == 0)
   {
     /* putbuf() 함수를 이용하여 버퍼의 내용을 콘솔에 입력한다. 이 때에는 필요한 사이즈만큼 반복문을 돌아야 한다. */
-    return -1; // temp
+    putbuf (buffer, size);
+    return size;
   }
   else
   {
