@@ -5,8 +5,9 @@
 #include "threads/thread.h"
 #include "filesys/filesys.h"
 
-/* Defined in threads/thread.c */
+/* These are defined in threads/thread.c */
 extern struct list opened_file_list;
+extern int file_open_count;
 
 static void syscall_handler (struct intr_frame *);
 struct file *getfile (int fd);

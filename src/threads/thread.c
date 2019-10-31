@@ -40,10 +40,13 @@ struct condition cond_list;
 
 /* List of fd. */
 struct list opened_file_list;
+
+int file_open_count;
 // MYCODE_END
 
 /* Lock used by allocate_tid(). */
 struct lock tid_lock;
+
 
 /* Stack frame for kernel_thread(). */
 struct kernel_thread_frame 
