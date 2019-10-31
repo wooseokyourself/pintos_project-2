@@ -5,6 +5,7 @@
 #include "threads/thread.h"
 #include "filesys/filesys.h"
 #include "filesys/file.h"
+#include "filesys/off_t.h"
 #include "devices/block.h"
 
 /* These are defined in threads/thread.c */
