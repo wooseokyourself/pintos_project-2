@@ -5,7 +5,7 @@
 #include <debug.h>
 
 /* Process identifier. */
-typedef int l.h;
+typedef int pid_t;
 #define PID_ERROR ((pid_t) -1)
 
 /* Map region identifier. */

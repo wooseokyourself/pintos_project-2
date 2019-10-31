@@ -37,14 +37,6 @@ static struct thread *initial_thread;
 /* Lock used by allocate_tid(). */
 static struct lock tid_lock;
 
-// MYCODE_START
-/* Condition of waiting their child's exit process. */
-static struct condition cond_list;
-
-/* List of fd. */
-static struct list opened_file_list;
-// MYCODE_END
-
 /* Stack frame for kernel_thread(). */
 struct kernel_thread_frame 
   {
