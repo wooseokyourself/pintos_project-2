@@ -6,6 +6,9 @@
 struct inode;
 
 /* Opening and closing files. */
+// MYCODE_START
+struct file;
+// MYCODE_END
 struct file *file_open (struct inode *);
 struct file *file_reopen (struct file *);
 void file_close (struct file *);
