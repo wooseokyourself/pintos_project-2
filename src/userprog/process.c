@@ -632,7 +632,7 @@ printf("  >> push the value of argc finished / push return address start\n");
         /* push return address. */
         // 리턴어드레스의 크기는 4란다.
         *esp -= 4;
-        *(uint32_t **)esp = 0;
+        **(uint32_t **)esp = 0;
         hex_dump (*esp, *esp, 100, 1);
 
 printf("  >> push return address finished / free(argv) start\n");
