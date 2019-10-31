@@ -5,6 +5,14 @@
 #include <list.h>
 #include <stdint.h>
 
+// MYCODE_START
+/* Condition of waiting their child's exit process. */
+static struct condition cond_list;
+
+/* List of fd. */
+static struct list opened_file_list;
+// MYCODE_END
+
 /* States in a thread's life cycle. */
 enum thread_status
   {
