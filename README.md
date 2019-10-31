@@ -133,6 +133,11 @@ char* strtok_r (char *s, const char *delimiters, char **save_ptr)
   
   를 통해 echo 파일의 실행을 성공시키는 방향으로 진행할 것.
 
+10.31
+
+스택에 각 요소가 제대로 들어갔는지 확인할 필요가 있음.
+
+process_start에서 asm_volatile 을 호출할 때 page fault가 발생함. 위에서 작성한 것처럼, 이 asm_volatile은 intr_exit에서 스택의 모든 argument를 intr_frame 구조체로 가져오면서 유저프로세스를 실행함. 그러므로 아마 스택에 데이터를 이상하게 쌓아서 이러한 오류가 나는듯.
 
 ### 3. System Call
 
