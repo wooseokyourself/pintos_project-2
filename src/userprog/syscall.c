@@ -138,7 +138,7 @@ int
 open (const char *file)
 {
 printf(" SYSCALL: open \n");
-  struct file *return_file = filesys_open(file);
+  struct file *return_file = filesys_open (file);
   if (return_file == NULL)
   {
 printf("  >> filesys_open(file) failed, return -1\n");
@@ -147,8 +147,9 @@ printf("  >> filesys_open(file) failed, return -1\n");
   else
   {
 printf("  >> filesys_open(file) success, return fd(%d)", file_open_count);
-    return_file->fd = file_open_count++;
-    list_push_back (&opened_file_list, return_file->list_elem);
+    return_file->fd = file_open_count;
+    file_open_count++;
+    list_push_back (&opened_file_list, &(return_file->list_elem));
     return return_file->fd;
   }
 }
