@@ -94,8 +94,8 @@ struct thread
     struct list_elem elem;              /* List element. */
 
     // MYCODE_START
-    struct thread *parent_tid;          /* Parent thread. */
-    struct thread *child_tid;           /* Child thread. */
+    struct thread *parent;              /* Parent thread. */
+    struct thread *child;               /* Child thread. */
     bool isRun;                         /* Running status. */
     // MYCODE_END
 
