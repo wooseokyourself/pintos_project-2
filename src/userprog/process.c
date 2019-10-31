@@ -594,9 +594,13 @@ printf("  >> length of argv[i]: %d\n", length);
 
 printf("  >> push command line finished / push word-align start\n");
         /* push word-align. */
-        while ( (PHYS_BASE - *esp) % 4 != 0 )
+        while ( (PHYS_BASE - *esp) % 4 != 0 ){
+printf("      >> PHYS_BASE - *esp = %d\n", PHYS_BASE - *esp);
+printf("      >> , so we extract stack %d\n", sizeof (uint8_t));
+printf("      >> , and push 0.\n");
           *esp -= sizeof (uint8_t);
-        *(uint8_t*)*esp = 0;
+          *(uint8_t*)*esp = 0;
+        }
 
 printf("  >> push word-align finished / push NULL start\n");
 
