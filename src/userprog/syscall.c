@@ -147,8 +147,7 @@ printf("  >> filesys_open(file) failed, return -1\n");
   else
   {
 printf("  >> filesys_open(file) success, return fd(%d)", file_open_count);
-    return_file->fd = fills
-    e_open_count++;
+    return_file->fd = file_open_count++;
     list_push_back (&opened_file_list, return_file->list_elem);
     return return_file->fd;
   }
