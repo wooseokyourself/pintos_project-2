@@ -13,6 +13,10 @@ static struct condition cond_list;
 static struct list opened_file_list;
 // MYCODE_END
 
+/* Lock used by allocate_tid(). */
+static struct lock tid_lock;
+// This is moved from thread.c to thread.h
+
 /* States in a thread's life cycle. */
 enum thread_status
   {
