@@ -587,6 +587,7 @@ printf("  >> i: %d\n", i);
           length = strlen (argv[i]);
 printf("  >> length of argv[i]: %d\n", length);
           *esp -= length + 1 ;
+printf("      >> extract by: %d\n", length + 1);
           // memcpy (*esp, argv[i], (strlen (argv[i]) + 1) );
           strlcpy (*esp, argv[i], length + 1);
           argv[i] = *esp;
@@ -616,6 +617,7 @@ printf("  >> push NULL finished / push address of argv[i] start\n");
         for (int i = argc - 1; i >= 0; i--)
         {
           *esp -= sizeof (uint32_t **);
+printf("      >> extract by: %d\n", sizeof (uint32_t **));
           *(uint32_t **)esp = argv[i];
         }
 
@@ -623,12 +625,14 @@ printf("  >> push address of argv[i] finished / push address of argv start\n");
 
         /* push address of argv. */
         *esp -= sizeof (uint32_t **);
+printf("      >> extract by: %d\n", sizeof (uint32_t **));
         **(uint32_t **)esp = argv;
 
 printf("  >> push address of argv finished / push the value of argc start\n");
 
         /* push the value of argc. */
         *esp -= sizeof (uint32_t);
+printf("      >> extract by: %d\n", sizeof (uint32_t));
         **(uint32_t **)esp = argc;
 
 printf("  >> push the value of argc finished / push return address start\n");
@@ -637,10 +641,9 @@ printf("  >> push the value of argc finished / push return address start\n");
         // 리턴어드레스의 크기는 4란다.
         *esp -= 4;
         **(uint32_t **)esp = 0;
-        hex_dump (*esp, *esp, 100, 1);
-
 printf("  >> push return address finished / free(argv) start\n");
 
+hex_dump (*esp, *esp, 100, 1);
         if (argv != NULL)
           free (argv);
 printf("MYCODE_END\n");
