@@ -101,8 +101,9 @@ printf(" >> in start_process(), asm volatile() finished! \n ");
    This function will be implemented in problem 2-2.  For now, it
    does nothing. */
 int
-process_wait (tid_t child_tid UNUSED) 
+process_wait (tid_t child_tid) 
 {
+  // MYCODE_START
 printf("  >> invoking process_wait () !\n");
   struct thread *current = thread_current();
   struct thread *child = current->child;
@@ -139,15 +140,20 @@ printf("  >> this pid is already waited!\n");
       반대로 자식프로세스는 void cond_signal (struct condition *, struct lock *)
       를 통해 종료를 알리게 한다.
       */
+      cond_wait (&cond_list, &tid_lock);
+      return child_tid;
     }
+    // MYCODE_END
   }
-  /* This busy-wait loop is for debugging. */
+  /*
+  // This busy-wait loop is for debugging. 
   int i=0;
   int j=0;
   for (i=0; i<1000000000; i++)
     j ++;
 
   return -1;
+  */
 }
 
 /* Free the current process's resources. */
@@ -172,7 +178,11 @@ process_exit (void)
       cur->pagedir = NULL;
       pagedir_activate (NULL);
       pagedir_destroy (pd);
+      // MYCODE_START
+      cond_signal (&cond_list, &tid_lock);
+      // MYCODE_END
     }
+printf("    >> process_exit() complete\n!");
 }
 
 /* Sets up the CPU for running user code in the current

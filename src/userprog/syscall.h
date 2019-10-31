@@ -40,7 +40,7 @@ Implement the system call handler
 */
 
 void syscall_init (void);
-static void syscall_handler (struct intr_frame *f UNUSED);
+static void syscall_handler (struct intr_frame *f);
 void halt (void);
 void exit (int status);
 pid_t exec (const char *cmd_lime);
