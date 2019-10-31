@@ -13,6 +13,7 @@ extern struct list opened_file_list;
 extern int file_open_count;
 
 struct file *getfile (int fd);
+static void syscall_handler (struct intr_frame *f);
 
 struct file 
   {
@@ -50,7 +51,7 @@ printf("syscall_init START!\n");
 printf("syscall_init END!\n");
 }
 
-static void
+void
 syscall_handler (struct intr_frame *f) 
 {
   printf ("system call!\n");
