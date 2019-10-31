@@ -607,19 +607,19 @@ printf("  >> push word-align finished / push NULL start\n");
 printf("  >> push NULL finished / push address of argv[i] start\n");
 
         /* push address of argv[i]. */
-        *esp -= sizeof (char*);
-        *(char**)*esp = 0;
+        // *esp -= sizeof (char*);
+        // *(char**)*esp = 0;
         for (int i = argc - 1; i >= 0; i--)
         {
-          *esp -= sizeof (char*);
-          *(char**)*esp = argv[i];
+          *esp -= sizeof (uint32_t **);
+          *(uint32_t **)esp = argv[i];
         }
 
 printf("  >> push address of argv[i] finished / push address of argv start\n");
 
         /* push address of argv. */
-        *esp -= sizeof (char**);
-        *(char***)*esp = argv;
+        *esp -= sizeof (uint32_t **);
+        **(uint32_t **)esp = argv;
 
 printf("  >> push address of argv finished / push the value of argc start\n");
 
@@ -631,16 +631,16 @@ printf("  >> push the value of argc finished / push return address start\n");
 
         /* push return address. */
         // 리턴어드레스의 크기는 4란다.
-        *esp -= sizeof (void (*)());
-        *(int*)*esp = 0;
+        *esp -= 4;
+        *(uint32_t **)esp = 0;
         hex_dump (*esp, *esp, 100, 1);
 
 printf("  >> push return address finished / free(argv) start\n");
-printf("MYCODE_END\n");
-        // MYCODE_END
 
         if (argv != NULL)
           free (argv);
+printf("MYCODE_END\n");
+        // MYCODE_END
       }
       else
         palloc_free_page (kpage);
