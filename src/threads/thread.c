@@ -97,6 +97,9 @@ thread_init (void)
   initial_thread = running_thread ();
   init_thread (initial_thread, "main", PRI_DEFAULT);
   initial_thread->status = THREAD_RUNNING;
+  // MYCODE_START
+  initial_thread->isRun = true;
+  // MYCODE_END
   initial_thread->tid = allocate_tid ();
 }
 
@@ -218,6 +221,9 @@ thread_block (void)
 
   thread_current ()->status = THREAD_BLOCKED;
   schedule ();
+  // MYCODE_START
+  thread_current()->isRun = false;
+  // MYCODE_END
 }
 
 /* Transitions a blocked thread T to the ready-to-run state.
@@ -312,6 +318,9 @@ thread_yield (void)
   cur->status = THREAD_READY;
   schedule ();
   intr_set_level (old_level);
+  // MYCODE_START
+  cur->isRun = false;
+  // MYCODE_END
 }
 
 /* Invoke function 'func' on all threads, passing along 'aux'.
@@ -467,6 +476,13 @@ init_thread (struct thread *t, const char *name, int priority)
   old_level = intr_disable ();
   list_push_back (&all_list, &t->allelem);
   intr_set_level (old_level);
+
+  // MYCODE_START
+  struct thread *current = thread_current();
+  current->child = t;
+  t->parent = current;
+  t->isRun = false;
+  // MYCODE_END
 }
 
 /* Allocates a SIZE-byte frame at the top of thread T's stack and
@@ -521,6 +537,10 @@ thread_schedule_tail (struct thread *prev)
 
   /* Mark us as running. */
   cur->status = THREAD_RUNNING;
+  
+  // MYCODE_START
+  cur->isRun = true;
+  // MYCODE_END
 
   /* Start new time slice. */
   thread_ticks = 0;
