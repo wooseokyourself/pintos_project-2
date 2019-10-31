@@ -1,6 +1,8 @@
 #ifndef USERPROG_SYSCALL_H
 #define USERPROG_SYSCALL_H
 
+#include "lib/user/syscall.h"
+
 /* This comment is from POSTECH project2.pdf
 
 System call: internal interrupts or software exceptions
