@@ -494,10 +494,19 @@ init_thread (struct thread *t, const char *name, int priority)
   intr_set_level (old_level);
 
   // MYCODE_START
-  struct thread *current = thread_current();
-  current->child = t;
-  t->parent = current;
-  t->isRun = false;
+  if (list_size(&all_list) > 1)
+  {
+    struct thread *current = thread_current();
+    current->child = t;
+    t->parent = current;
+    t->isRun = false;
+  }
+  else
+  {
+    t->child = NULL;
+    t->parent = NULL;
+    t->isRun = false;
+  }
   // MYCODE_END
 }
 
