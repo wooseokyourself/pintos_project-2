@@ -35,9 +35,6 @@ static struct thread *idle_thread;
 static struct thread *initial_thread;
 
 // MYCODE_START
-/* Condition of waiting their child's exit process. */
-struct condition cond_list;
-
 /* List of fd. */
 struct list opened_file_list;
 
@@ -47,6 +44,8 @@ int file_open_count;
 /* Lock used by allocate_tid(). */
 struct lock tid_lock;
 
+/* Lock used by userprog. */
+struct lock file_lock;
 
 /* Stack frame for kernel_thread(). */
 struct kernel_thread_frame 
@@ -104,18 +103,21 @@ thread_init (void)
   list_init (&ready_list);
   list_init (&all_list);
 
-  // MYCODE_START
-  cond_init (&cond_list);
+// MYCODE_START
+#ifdef USERPROG
   list_init (&opened_file_list);
-  // MYCODE_END
+#endif
+// MYCODE_END
 
   /* Set up a thread structure for the running thread. */
   initial_thread = running_thread ();
   init_thread (initial_thread, "main", PRI_DEFAULT);
   initial_thread->status = THREAD_RUNNING;
-  // MYCODE_START
+// MYCODE_START
+#ifdef USERPROG
   initial_thread->isRun = true;
-  // MYCODE_END
+#endif
+// MYCODE_END
   initial_thread->tid = allocate_tid ();
 }
 
@@ -237,9 +239,11 @@ thread_block (void)
 
   thread_current ()->status = THREAD_BLOCKED;
   schedule ();
-  // MYCODE_START
+// MYCODE_START
+#ifdef USERPROG
   thread_current()->isRun = false;
-  // MYCODE_END
+#endif
+// MYCODE_END
 }
 
 /* Transitions a blocked thread T to the ready-to-run state.
@@ -334,9 +338,11 @@ thread_yield (void)
   cur->status = THREAD_READY;
   schedule ();
   intr_set_level (old_level);
-  // MYCODE_START
+// MYCODE_START
+#ifdef USERPROG
   cur->isRun = false;
-  // MYCODE_END
+#endif
+// MYCODE_END
 }
 
 /* Invoke function 'func' on all threads, passing along 'aux'.
@@ -493,7 +499,10 @@ init_thread (struct thread *t, const char *name, int priority)
   list_push_back (&all_list, &t->allelem);
   intr_set_level (old_level);
 
-  // MYCODE_START
+// MYCODE_START
+#ifdef USERPROG
+  sema_init (&(t->child_lock), 0);
+  sema_init (&(t->memory_lock), 0);
   if (list_size(&all_list) > 1)
   {
     struct thread *current = thread_current();
@@ -507,7 +516,8 @@ init_thread (struct thread *t, const char *name, int priority)
     t->parent = NULL;
     t->isRun = false;
   }
-  // MYCODE_END
+#endif
+// MYCODE_END
 }
 
 /* Allocates a SIZE-byte frame at the top of thread T's stack and
@@ -562,15 +572,15 @@ thread_schedule_tail (struct thread *prev)
 
   /* Mark us as running. */
   cur->status = THREAD_RUNNING;
-  
-  // MYCODE_START
-  cur->isRun = true;
-  // MYCODE_END
 
   /* Start new time slice. */
   thread_ticks = 0;
 
 #ifdef USERPROG
+  // MYCODE_START
+  cur->isRun = true;
+  // MYCODE_END
+
   /* Activate the new address space. */
   process_activate ();
 #endif

@@ -3,6 +3,7 @@
 #include <syscall-nr.h>
 #include "threads/interrupt.h"
 #include "threads/thread.h"
+#include "threads/vaddr.h"
 #include "filesys/filesys.h"
 #include "filesys/file.h"
 #include "filesys/off_t.h"
@@ -14,6 +15,7 @@ extern int file_open_count;
 
 struct file *getfile (int fd);
 static void syscall_handler (struct intr_frame *f);
+void check_user_vaddr (const void *vaddr);
 
 struct file 
   {
@@ -54,6 +56,10 @@ printf("syscall_init END!\n");
 void
 syscall_handler (struct intr_frame *f) 
 {
+  /*
+    인자가 1개인 녀석은 esp + 4 부터 시작하고, 2개 이상은 녀석은 esp + 20 부터 시작한다.
+    리턴값이 있는 함수는, 그 리턴값을 eax에 넣어주어야 한다. (docs p.36)
+  */
   printf ("system call!\n");
 printf("syscall: %d\n", *(uint32_t *)(f->esp));
 hex_dump (f->esp, f->esp, 100, 1);
@@ -64,51 +70,63 @@ hex_dump (f->esp, f->esp, 100, 1);
       break;
 
     case SYS_EXIT:                   // args number: 1
+      check_user_vaddr (f->esp + 4);
       exit( (int)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_EXEC:                   // args number: 1
-      exec ( (const char *)*(uint32_t *)(f->esp + 4) );
+      check_user_vaddr (f->esp + 4);
+      f->eax = exec ( (const char *)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_WAIT:                   // args number: 1
-      wait ( (pid_t *)*(uint32_t *)(f->esp + 4) );
+      check_user_vaddr (f->esp + 4);
+      f->eax = wait ( (pid_t *)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_CREATE:                 // args number: 2
-      create ( (const char *)*(uint32_t *)(f->esp + 4), (unsigned *)*(uint32_t *)(f->esp + 8) );
+      check_user_vaddr (f->esp + 20);
+      f->eax = create ( (const char *)*(uint32_t *)(f->esp + 20), (unsigned *)*(uint32_t *)(f->esp + 24) );
       break;
 
     case SYS_REMOVE:                 // args number: 1
-      remove ( (const char *)*(uint32_t *)(f->esp + 4) );
+      check_user_vaddr (f->esp + 4);
+      f->eax = remove ( (const char *)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_OPEN:                   // args number: 1
-      open ( (const char *)*(uint32_t *)(f->esp + 4) );
+      check_user_vaddr (f->esp + 4);
+      f->eax = open ( (const char *)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_FILESIZE:               // args number: 1
-      filesize ( (int)*(uint32_t *)(f->esp+4) );
+      check_user_vaddr (f->esp + 4);
+      f->eax = filesize ( (int)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_READ:                   // args number: 3
-      read ( (int)*(uint32_t *)(f->esp+4), (void *)*(uint32_t *)(f->esp + 8), (unsigned)*((uint32_t *)(f->esp + 12)) );
+      check_user_vaddr (f->esp + 20);
+      f->eax = read ( (int)*(uint32_t *)(f->esp+20), (void *)*(uint32_t *)(f->esp + 24), (unsigned)*((uint32_t *)(f->esp + 28)) );
       break;
 
     case SYS_WRITE:                  // args number: 3
-      write( (int)*(uint32_t *)(f->esp+4), (void *)*(uint32_t *)(f->esp + 8), (unsigned)*((uint32_t *)(f->esp + 12)) );
+      check_user_vaddr (f->esp + 20);
+      f->eax = write( (int)*(uint32_t *)(f->esp+20), (void *)*(uint32_t *)(f->esp + 24), (unsigned)*((uint32_t *)(f->esp + 28)) );
       break;
 
     case SYS_SEEK:                   // args number: 2
-      seek ( (int)*(uint32_t *)(f->esp+4), (unsigned)*((uint32_t *)(f->esp + 8)) );
+      check_user_vaddr (f->esp + 20);
+      seek ( (int)*(uint32_t *)(f->esp+20), (unsigned)*((uint32_t *)(f->esp + 24)) );
       break;
 
     case SYS_TELL:                   // args number: 1
-      tell ( (int)*(uint32_t *)(f->esp+4) );
+      check_user_vaddr (f->esp + 4);
+      f->eax = tell ( (int)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_CLOSE:                  // args number: 1
-      close ( (int)*(uint32_t *)(f->esp+4) );
+      check_user_vaddr (f->esp + 4);
+      close ( (int)*(uint32_t *)(f->esp + 4) );
       break;
   }
   // thread_exit ();
@@ -123,18 +141,11 @@ halt (void)
 void
 exit (int status)
 {
-  struct thread *current = thread_current();
-  if (current->status == status)
-  {
-printf(" SYSCALL: exit invoking process_exit()! \n");
-    current->status = THREAD_DYING;
-    current->isRun = false;
-    process_exit ();
-  }
-  else
-  {
-printf(" SYSCALL: exit failed!\n");
-  }
+  printf("%s: exit(%d)\n", thread_name(), status);
+  // thread_current() -> status = THREAD_DYING; /* 이는 thread_exit() 내에서 처리됨 */
+  thread_current() -> isRun = false;
+  thread_current() -> exit_code = status;
+  thread_exit();
 }
 
 pid_t
@@ -224,7 +235,7 @@ read (int fd, void *buffer, unsigned size)
 int
 write (int fd, const void *buffer, unsigned size) // 이거 내용 부정확하니까 docs 보고 다시 짜기!!
 {
-  if (fd == 0)
+  if (fd == 1)
   {
     /* putbuf() 함수를 이용하여 버퍼의 내용을 콘솔에 입력한다. 이 때에는 필요한 사이즈만큼 반복문을 돌아야 한다. */
     putbuf (buffer, size);
@@ -285,4 +296,10 @@ struct file
     }
   }
   return NULL;
+}
+
+void
+check_user_vaddr (const void *vaddr)
+{
+  ASSERT(is_user_vaddr(vaddr));
 }

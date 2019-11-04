@@ -23,9 +23,9 @@ static bool load (const char *cmdline, void (**eip) (void), void **esp);
 
 // MYCODE_START
 /* These are defined in threads/thread.c */
-extern struct condition cond_list;
 extern struct list opened_file_list;
 extern struct lock tid_lock;
+extern struct lock file_lock;
 // MYCODE_END
 
 /* Starts a new thread running a user program loaded from
@@ -56,12 +56,17 @@ process_execute (const char *file_name)
   char* dummyptr;
   char* token = strtok_r(file_name, " ", &dummyptr); // 여기에 &save_ptr 대신 NULL을 넣어도 무방함. save_ptr은 이후 안쓰임. 함 해보까?
   // >> 여기에 NULL 넣어줬더니 kernel PANIC 떠서 dummyptr 해줌.
+
+  // MYCODE_START
+  if (filesys_open (token) == NULL)
+    return -1;
+  // MYCODE_END
+
   tid = thread_create (token, PRI_DEFAULT, start_process, fn_copy);
   
-
   if (tid == TID_ERROR)
     palloc_free_page (fn_copy); 
-  return tid;
+  return tid
 }
 
 /* A thread function that loads a user process and starts it
@@ -147,8 +152,10 @@ printf("  >> this pid is already waited!\n");
       반대로 자식프로세스는 void cond_signal (struct condition *, struct lock *)
       를 통해 종료를 알리게 한다.
       */
-      cond_wait (&cond_list, &tid_lock);
-      return child_tid;
+      sema_down (&(child->child_lock)); // wait
+      child->child = NULL; // remove
+      sema_up (&(t->memory_lock)); // send signal to the parent
+      return child->exit_code;
     }
     // MYCODE_END
   }
@@ -185,10 +192,11 @@ process_exit (void)
       cur->pagedir = NULL;
       pagedir_activate (NULL);
       pagedir_destroy (pd);
-      // MYCODE_START
-      cond_signal (&cond_list, &tid_lock);
-      // MYCODE_END
     }
+    // MYCODE_START
+    sema_up (&(cur->child_lock));
+    sema_down (&(cur->memory_lock));
+    // MYCODE_END
 printf("    >> process_exit() complete\n!");
 }
 
@@ -368,10 +376,12 @@ printf("    >> MYCODE_END\n");
   /* Open executable file. */
   // file = filesys_open (file_name); PREV_CODE
 printf("    >> argv[0]'s size: %d\n", sizeof (argv[0]));
+  lock_acquire (&file_lock);
   file = filesys_open (argv[0]); // MYCODE
   if (file == NULL) 
     {
-      printf ("load: %s: open failed\n", file_name);
+printf ("load: %s: open failed\n", file_name);
+      lock_release (&file_lock);
       goto done; 
     }
 
@@ -443,11 +453,13 @@ printf(" >> header is 0 \n");
               if (!load_segment (file, file_page, (void *) mem_page,
                                  read_bytes, zero_bytes, writable)){
 printf(" >> load_segment() failed! \n");
+                lock_release (&file_lock);
                 goto done;
                                  }
             }
           else{
 printf(" >> validate_segment() return false!\n ");
+            lock_release (&file_lock);
             goto done;
           }
           break;

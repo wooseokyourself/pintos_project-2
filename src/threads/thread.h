@@ -93,15 +93,17 @@ struct thread
     /* Shared between thread.c and synch.c. */
     struct list_elem elem;              /* List element. */
 
+#ifdef USERPROG
+    /* Owned by userprog/process.c. */
+    uint32_t *pagedir;                  /* Page directory. */
     // MYCODE_START
     struct thread *parent;              /* Parent thread. */
     struct thread *child;               /* Child thread. */
     bool isRun;                         /* Running status. */
+    struct semaphore child_lock;
+    struct semaphore memory_lock;
+    int exit_code;
     // MYCODE_END
-
-#ifdef USERPROG
-    /* Owned by userprog/process.c. */
-    uint32_t *pagedir;                  /* Page directory. */
 #endif
 
     /* Owned by thread.c. */
