@@ -66,7 +66,7 @@ process_execute (const char *file_name)
   
   if (tid == TID_ERROR)
     palloc_free_page (fn_copy); 
-  return tid
+  return tid;
 }
 
 /* A thread function that loads a user process and starts it
@@ -154,7 +154,7 @@ printf("  >> this pid is already waited!\n");
       */
       sema_down (&(child->child_lock)); // wait
       child->child = NULL; // remove
-      sema_up (&(t->memory_lock)); // send signal to the parent
+      sema_up (&(child->memory_lock)); // send signal to the parent
       return child->exit_code;
     }
     // MYCODE_END
