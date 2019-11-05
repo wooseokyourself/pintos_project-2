@@ -147,13 +147,17 @@ wait (pid_t pid)
 bool
 create(const char *file, unsigned initial_size)
 {
-  filesys_create (file, initial_size);
+  if (file == NULL)
+    exit(-1);
+  return filesys_create (file, initial_size);
 }
 
 bool
 remove (const char *file)
 {
-  filesys_remove (file);
+  if (file == NULL)
+    exit(-1);
+  return filesys_remove (file);
 }
 
 int
@@ -164,7 +168,7 @@ open (const char *file)
   if (return_file == NULL)
   {
 //printf("  >> filesys_open(file) failed ; file points NULL, return -1\n");
-    return -1;
+    exit(-1);
   }
   else
   {
@@ -187,7 +191,7 @@ filesize (int fd)
 {
   struct file *f = getfile (fd);
   if (f == NULL)
-    return -1;
+    exit(-1);
   else
     return file_length (f);
 }
@@ -210,7 +214,7 @@ read (int fd, void *buffer, unsigned size)
   {
     struct file *f = getfile (fd);
     if (f == NULL)
-      return -1;
+      exit(-1);
     else
       return file_read (f, buffer, size);
   }
@@ -230,7 +234,7 @@ write (int fd, const void *buffer, unsigned size) // 이거 내용 부정확하�
   {
     struct file *f = getfile (fd);
     if (f == NULL)
-      return -1;
+      exit(-1);
     else
       return file_write (f, buffer, size);
   }
@@ -241,7 +245,7 @@ seek (int fd, unsigned position)
 {
   struct file *f = getfile (fd);
   if (f == NULL)
-    return -1;
+    exit(-1);
   else
     return file_seek (f, position);
 }
@@ -251,7 +255,7 @@ tell (int fd)
 {
   struct file *f = getfile (fd);
   if (f == NULL)
-    return -1;
+    exit(-1);
   else
     return file_tell (f);
 }
@@ -261,7 +265,7 @@ close (int fd)
 {
   struct file *f = getfile (fd);
   if (f == NULL)
-    return -1;
+    exit(-1);
   else
     file_close (f);
 }
