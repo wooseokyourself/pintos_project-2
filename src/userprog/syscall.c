@@ -164,12 +164,11 @@ int
 open (const char *file)
 {
 //printf(" SYSCALL: open \n");
+  if (file == NULL)
+    exit(-1);
   struct file *return_file = filesys_open (file);
   if (return_file == NULL)
-  {
-//printf("  >> filesys_open(file) failed ; file points NULL, return -1\n");
-    exit(-1);
-  }
+    return -1;
   else
   {
     for (int i=3; i<128; i++)
@@ -182,8 +181,8 @@ open (const char *file)
       }
     }
 //printf("  >> filesys_open(file) failed ; thread's fd is full, return -1\n");
-    return -1;
   }
+  return -1;
 }
 
 int

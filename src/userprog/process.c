@@ -307,7 +307,7 @@ process_wait (tid_t child_tid)
       }
       else // (child->isRun == false)
       {
-//printf("  >> this pid was terminated by parent!\n");
+//printf("  >> this pid was already terminated by parent!\n");
         return -1;
       }
     }
