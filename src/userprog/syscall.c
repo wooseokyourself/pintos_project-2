@@ -44,63 +44,63 @@ hex_dump (f->esp, f->esp, 100, 1);
       break;
 
     case SYS_EXIT:                   // args number: 1
-      check_user_vaddr (f->esp + 20);
-      exit( *(uint32_t *)(f->esp + 20) );
+      check_user_vaddr (f->esp + 4);
+      exit( *(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_EXEC:                   // args number: 1
-      check_user_vaddr (f->esp + 20);
-      f->eax = exec ( (const char *)*(uint32_t *)(f->esp + 20) );
+      check_user_vaddr (f->esp + 4);
+      f->eax = exec ( (const char *)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_WAIT:                   // args number: 1
-      check_user_vaddr (f->esp + 20);
-      f->eax = wait ( (pid_t *)*(uint32_t *)(f->esp + 20) );
+      check_user_vaddr (f->esp + 4);
+      f->eax = wait ( (pid_t *)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_CREATE:                 // args number: 2
-      check_user_vaddr (f->esp + 20);
-      f->eax = create ( (const char *)*(uint32_t *)(f->esp + 20), (unsigned *)*(uint32_t *)(f->esp + 20) );
+      check_user_vaddr (f->esp + 4);
+      f->eax = create ( (const char *)*(uint32_t *)(f->esp + 4), (unsigned *)*(uint32_t *)(f->esp + 8) );
       break;
 
     case SYS_REMOVE:                 // args number: 1
-      check_user_vaddr (f->esp + 20);
-      f->eax = remove ( (const char *)*(uint32_t *)(f->esp + 20) );
+      check_user_vaddr (f->esp + 4);
+      f->eax = remove ( (const char *)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_OPEN:                   // args number: 1
-      check_user_vaddr (f->esp + 20);
-      f->eax = open ( (const char *)*(uint32_t *)(f->esp + 20) );
+      check_user_vaddr (f->esp + 4);
+      f->eax = open ( (const char *)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_FILESIZE:               // args number: 1
-      check_user_vaddr (f->esp + 20);
-      f->eax = filesize ( (int)*(uint32_t *)(f->esp + 20) );
+      check_user_vaddr (f->esp + 4);
+      f->eax = filesize ( (int)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_READ:                   // args number: 3
-      check_user_vaddr (f->esp + 20);
-      f->eax = read ( (int)*(uint32_t *)(f->esp+20), (void *)*(uint32_t *)(f->esp + 24), (unsigned)*((uint32_t *)(f->esp + 28)) );
+      check_user_vaddr (f->esp + 4);
+      f->eax = read ( (int)*(uint32_t *)(f->esp+4), (void *)*(uint32_t *)(f->esp + 8), (unsigned)*((uint32_t *)(f->esp + 12)) );
       break;
 
     case SYS_WRITE:                  // args number: 3
-      check_user_vaddr (f->esp + 20);
-      f->eax = write( (int)*(uint32_t *)(f->esp+20), (void *)*(uint32_t *)(f->esp + 24), (unsigned)*((uint32_t *)(f->esp + 28)) );
+      check_user_vaddr (f->esp + 4);
+      f->eax = write( (int)*(uint32_t *)(f->esp+4), (void *)*(uint32_t *)(f->esp + 8), (unsigned)*((uint32_t *)(f->esp + 12)) );
       break;
 
     case SYS_SEEK:                   // args number: 2
-      check_user_vaddr (f->esp + 20);
-      seek ( (int)*(uint32_t *)(f->esp + 20), (unsigned)*((uint32_t *)(f->esp + 24)) );
+      check_user_vaddr (f->esp + 4);
+      seek ( (int)*(uint32_t *)(f->esp + 4), (unsigned)*((uint32_t *)(f->esp + 8)) );
       break;
 
     case SYS_TELL:                   // args number: 1
-      check_user_vaddr (f->esp + 20);
-      f->eax = tell ( (int)*(uint32_t *)(f->esp + 20) );
+      check_user_vaddr (f->esp + 4);
+      f->eax = tell ( (int)*(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_CLOSE:                  // args number: 1
-      check_user_vaddr (f->esp + 20);
-      close ( (int)*(uint32_t *)(f->esp + 20) );
+      check_user_vaddr (f->esp + 4);
+      close ( (int)*(uint32_t *)(f->esp + 4) );
       break;
   }
   // thread_exit ();
