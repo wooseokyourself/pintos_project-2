@@ -24,7 +24,6 @@ file_open (struct inode *inode)
       file->inode = inode;
       file->pos = 0;
       file->deny_write = false;
-      file->fd = -1;
 printf("filesys/file.c file_open() success!\n");
       return file;
     }
