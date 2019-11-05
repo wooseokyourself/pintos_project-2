@@ -646,7 +646,7 @@ printf("  >> for loop pushing argv execute.\n");
 printf("  >> i: %d\n", i);
           length = strlen (argv[i]);
 printf("  >> length of argv[i]: %d\n", length);
-          *esp -= length + 1 ;
+          *esp -= length + 1 ; // '\n'도 넣기 위해 +1
 printf("      >> extract by: %d\n", length + 1);
           // memcpy (*esp, argv[i], (strlen (argv[i]) + 1) );
           strlcpy (*esp, argv[i], length + 1);
@@ -660,7 +660,7 @@ printf("      >> PHYS_BASE - *esp = %d\n", PHYS_BASE - *esp);
 printf("      >> , so we extract stack %d\n", sizeof (uint8_t));
 printf("      >> , and push 0.\n");
           *esp -= sizeof (uint8_t);
-          *(uint8_t*)*esp = 0;
+          **(uint8_t **)esp = 0;
         }
 
 printf("  >> push word-align finished / push NULL start\n");
@@ -678,7 +678,7 @@ printf("  >> push NULL finished / push address of argv[i] start\n");
         {
           *esp -= sizeof (uint32_t **);
 printf("      >> extract by: %d\n", sizeof (uint32_t **));
-          *(uint32_t **)esp = argv[i];
+          **(uint32_t **)esp = argv[i];
         }
 
 printf("  >> push address of argv[i] finished / push address of argv start\n");
