@@ -191,12 +191,12 @@ printf("  >> for loop pushing argv execute.\n");
     for (int i = argc - 1; i >= 0; i--)
     {
 printf("  >> i: %d\n", i);
-      length = strlen (argv[i]);
+      length = strlen (argv[i]) + 1; // '\n'도 넣기 위해 +1
 printf("  >> length of argv[i]: %d\n", length);
-      *esp -= length + 1 ; // '\n'도 넣기 위해 +1
+      *esp -= length;
 printf("      >> extract by: %d\n", length + 1);
-      // memcpy (*esp, argv[i], (strlen (argv[i]) + 1) );
-      strlcpy (*esp, argv[i], length + 1);
+      memcpy (*esp, argv[i], length);
+      // strlcpy (*esp, argv[i], length + 1);
       argv[i] = *esp;
     }
 
@@ -214,7 +214,7 @@ printf("  >> push word-align finished / push NULL start\n");
 
     /* push NULL */
     *esp -= 4;
-    **(uint8_t **)esp = 0;
+    *(uint8_t *)*esp = 0;
 
 printf("  >> push NULL finished / push address of argv[i] start\n");
 
@@ -223,7 +223,7 @@ printf("  >> push NULL finished / push address of argv[i] start\n");
     {
       *esp -= sizeof (uint32_t **);
 printf("      >> extract by: %d\n", sizeof (uint32_t **));
-      **(uint32_t **)esp = argv[i];
+      *(uint32_t **)*esp = argv[i];
     }
 
 printf("  >> push address of argv[i] finished / push address of argv start\n");
@@ -231,21 +231,21 @@ printf("  >> push address of argv[i] finished / push address of argv start\n");
     /* push address of argv. */
     *esp -= sizeof (uint32_t **);
 printf("      >> extract by: %d\n", sizeof (uint32_t **));
-    **(uint32_t **)esp = argv;
+    *(uint32_t *)*esp = *esp + 4;
 
 printf("  >> push address of argv finished / push the value of argc start\n");
 
     /* push the value of argc. */
     *esp -= sizeof (uint32_t);
 printf("      >> extract by: %d\n", sizeof (uint32_t));
-    **(uint32_t **)esp = argc;
+    *(uint32_t *)*esp = argc;
 
 printf("  >> push the value of argc finished / push return address start\n");
 
     /* push return address. */
     // 리턴어드레스의 크기는 4란다.
     *esp -= 4;
-    **(uint32_t **)esp = 0;
+    *(uint32_t *)*esp = 0;
 printf("  >> push return address finished / free(argv) start\n");
 
 hex_dump (*esp, *esp, 100, 1);  
@@ -732,7 +732,7 @@ printf(" >> setup_stack() invoked! \n");
     {
       success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
       if (success){
-        *esp = PHYS_BASE - 12; // initialize sp
+        *esp = PHYS_BASE; // initialize sp
       }
       else
         palloc_free_page (kpage);
