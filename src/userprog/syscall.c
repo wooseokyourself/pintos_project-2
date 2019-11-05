@@ -45,7 +45,7 @@ hex_dump (f->esp, f->esp, 100, 1);
 
     case SYS_EXIT:                   // args number: 1
       check_user_vaddr (f->esp + 4);
-      exit( (int)*(uint32_t *)(f->esp + 4) );
+      exit( *(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_EXEC:                   // args number: 1
