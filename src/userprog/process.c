@@ -156,7 +156,7 @@ printf("    >> MYCODE_END\n");
   success = load (argv[0], &if_.eip, &if_.esp);
 printf(" >> in start_process(), load() returns true!\n");
   if (success)
-    push_to_esp (&if_.esp, &file_name, &(&argv), argc);
+    push_to_esp (&if_.esp, &file_name, &&argv, argc);
   /* If load failed, quit. */
   palloc_free_page (file_name);
   if (!success) 
