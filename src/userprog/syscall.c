@@ -44,8 +44,8 @@ hex_dump (f->esp, f->esp, 100, 1);
       break;
 
     case SYS_EXIT:                   // args number: 1
-      check_user_vaddr (f->esp + 20);
-      exit( *(uint32_t *)(f->esp + 20) );
+      check_user_vaddr (f->esp + 4);
+      exit( *(uint32_t *)(f->esp + 4) );
       break;
 
     case SYS_EXEC:                   // args number: 1
@@ -84,8 +84,8 @@ hex_dump (f->esp, f->esp, 100, 1);
       break;
 
     case SYS_WRITE:                  // args number: 3
-      check_user_vaddr (f->esp + 20);
-      f->eax = write( (int)*(uint32_t *)(f->esp+20), (void *)*(uint32_t *)(f->esp + 24), (unsigned)*((uint32_t *)(f->esp + 28)) );
+      check_user_vaddr (f->esp + 4);
+      f->eax = write( (int)*(uint32_t *)(f->esp+4), (void *)*(uint32_t *)(f->esp + 8), (unsigned)*((uint32_t *)(f->esp + 12)) );
       break;
 
     case SYS_SEEK:                   // args number: 2
