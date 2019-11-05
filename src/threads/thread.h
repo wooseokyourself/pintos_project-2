@@ -108,7 +108,8 @@ struct thread
     struct file *fd[128];
     /*
       fd를 file의 포인터로 선언하고 각 fd를 배열의 인덱스로 접근하는 방식은
-      블로그를 참조하였습니다.
+      블로그를 참조하였다.
+      fd[0], fd[1], fd[2] 는 각각 stdin, stdout, stderr 이란다.
     */
     // MYCODE_END
 #endif

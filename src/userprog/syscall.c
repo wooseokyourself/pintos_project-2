@@ -59,8 +59,8 @@ hex_dump (f->esp, f->esp, 100, 1);
       break;
 
     case SYS_CREATE:                 // args number: 2
-      check_user_vaddr (f->esp + 20);
-      f->eax = create ( (const char *)*(uint32_t *)(f->esp + 20), (unsigned *)*(uint32_t *)(f->esp + 24) );
+      check_user_vaddr (f->esp + 16);
+      f->eax = create ( (const char *)*(uint32_t *)(f->esp + 16), (unsigned *)*(uint32_t *)(f->esp + 20) );
       break;
 
     case SYS_REMOVE:                 // args number: 1
@@ -89,8 +89,8 @@ hex_dump (f->esp, f->esp, 100, 1);
       break;
 
     case SYS_SEEK:                   // args number: 2
-      check_user_vaddr (f->esp + 20);
-      seek ( (int)*(uint32_t *)(f->esp+20), (unsigned)*((uint32_t *)(f->esp + 24)) );
+      check_user_vaddr (f->esp + 16);
+      seek ( (int)*(uint32_t *)(f->esp + 16), (unsigned)*((uint32_t *)(f->esp + 20)) );
       break;
 
     case SYS_TELL:                   // args number: 1
@@ -119,6 +119,11 @@ exit (int status)
   // thread_current() -> status = THREAD_DYING; /* 이는 thread_exit() 내에서 처리됨 */
   thread_current() -> isRun = false;
   thread_current() -> exit_code = status;
+  for (int i=3; i<128; i++) 
+  {
+    if (getfile(i) != NULL)
+      close(i);
+  }
   thread_exit();
 }
 
@@ -178,7 +183,7 @@ filesize (int fd)
   if (f == NULL)
     return -1;
   else
-    return f->inode->data.length;
+    return file_length (f);
 }
 
 int
@@ -258,18 +263,7 @@ close (int fd)
 struct file
 *getfile (int fd)
 {
-  struct list_elem *e;
-  struct list *files = &opened_file_list;
-  bool found = false;
-  for (e = list_begin (files); e != list_end (files); e = list_next (e))
-  {
-    struct file *f = list_entry (e, struct file, elem);
-    if (f->fd == fd)
-    {
-      return f;
-    }
-  }
-  return NULL;
+  return (thread_current()->fd[fd]);
 }
 
 void
