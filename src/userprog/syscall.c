@@ -92,7 +92,7 @@ syscall_handler (struct intr_frame *f)
 
     case SYS_SEEK:                   // args number: 2
       check_user_vaddr (sp + 4);
-      seek ( (int)*(uint32_t *)(sp + 4), (unsigned)*((uint32_t *)(sp + 8) );
+      seek ( (int)*(uint32_t *)(sp + 4), (unsigned)*((uint32_t *)(sp + 8)) );
       break;
 
     case SYS_TELL:                   // args number: 1
