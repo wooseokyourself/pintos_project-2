@@ -24,14 +24,14 @@ file_open (struct inode *inode)
       file->inode = inode;
       file->pos = 0;
       file->deny_write = false;
-printf("filesys/file.c file_open() success!\n");
+//printf("filesys/file.c file_open() success!\n");
       return file;
     }
   else
     {
       inode_close (inode);
       free (file);
-printf("filesys/sile.c file_open() failed!\n");
+//printf("filesys/sile.c file_open() failed!\n");
       return NULL; 
     }
 }

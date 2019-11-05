@@ -36,7 +36,7 @@ syscall_handler (struct intr_frame *f)
   */
 //printf ("system call!\n");
 //printf("syscall: %d\n", *(uint32_t *)(f->esp));
-hex_dump (f->esp, f->esp, 100, 1);
+// hex_dump (f->esp, f->esp, 100, 1);
   switch (*(uint32_t *)(f->esp))
   {
     case SYS_HALT:                   // args number: 0
