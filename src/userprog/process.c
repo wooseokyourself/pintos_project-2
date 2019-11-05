@@ -732,7 +732,7 @@ printf(" >> setup_stack() invoked! \n");
     {
       success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
       if (success){
-        *esp = PHYS_BASE; // initialize sp
+        *esp = PHYS_BASE - 12; // initialize sp
       }
       else
         palloc_free_page (kpage);
