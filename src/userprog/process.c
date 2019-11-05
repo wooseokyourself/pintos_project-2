@@ -77,8 +77,86 @@ printf(" >> start_process() start!\n");
   if_.gs = if_.fs = if_.es = if_.ds = if_.ss = SEL_UDSEG; // User data selector(뭔가 단위인듯)
   if_.cs = SEL_UCSEG;
   if_.eflags = FLAG_IF | FLAG_MBS;
-  success = load (file_name, &if_.eip, &if_.esp);
+
+  /*
+    여기에서 file_name parsing 하고, load의 인자인 file_name에 파일명만 넣기
+  */
+
+////////////////// strtok start ////////////////////
+// input: char *file_name
+
+printf("    >> MYCODE_START\n");
+  // MYCODE_START
+  // using strtok_r reference: https://codeday.me/ko/qa/20190508/495336.html
+  char *ptr; // make q point to start of file_name.
+  char *rest; // to point to the rest of the string after token extraction.
+  char *token; // to point to the actual token returned.
+
+  /* init cpy_file_name for calculating argc. */
+  char *cpy_file_name = (char *)malloc (sizeof (file_name));
+  strlcpy (cpy_file_name, file_name, strlen(file_name) + 1);
+
+  ptr = cpy_file_name;
+
+  /*
+  argv[0] = prog_name
+  argv[1] = 1st arg
+  argv[2] = 2nd arg
+  ...
+  */
+   
+  char **argv;
+  int argc = 0;
+  /* Get argc's length. */
+  printf("  >> Get argc's length; while loop.\n");
+  token = strtok_r (ptr, " ", &rest);
+printf("    >> obtd token: %s\n", token);
+printf("       in argc: %d\n", argc);
+  argc ++;
+  ptr = rest;
+  while (token != NULL)
+  {
+    token = strtok_r (ptr, " ", &rest);
+printf("    >> obtd token: %s\n", token);
+printf("       in argc: %d\n", argc);
+    argc ++;
+    ptr = rest;
+  }
+  argc --;
+printf("    >> summery argc: %d\n", argc);
+  free (cpy_file_name);
+
+  argv = (char **)malloc(sizeof(char *) * argc);
+
+  ptr = file_name;
+  // loop untill strtok_r return NULL
+   
+  int i = 0;
+  token = strtok_r (ptr, " ", &rest);
+  argv[i] = token;
+printf("      >> saved argv: %s\n", argv[i]);
+printf("      >> i: %d\n", i);
+  i ++;
+  ptr = rest;
+  while (i != argc)
+  {
+    token = strtok_r (ptr, " ", &rest);
+    argv[i] = token;
+printf("      >> saved argv: %s\n", argv[i]);
+printf("      >> i: %d\n", i);
+    i ++;
+    ptr = rest;
+  }
+  // MYCODE_END
+printf("    >> MYCODE_END\n");
+
+// output: char **argv, int argc
+////////////////// strtok end ////////////////////
+
+  success = load (argv[0], &if_.eip, &if_.esp);
 printf(" >> in start_process(), load() returns true!\n");
+  if (success)
+    push_to_esp (file_name, char **argv, int argc)
   /* If load failed, quit. */
   palloc_free_page (file_name);
   if (!success) 
@@ -299,78 +377,10 @@ printf("   >> *file_name = %s\n", file_name);
     goto done;
   process_activate ();
 
-printf("    >> MYCODE_START\n");
-  // MYCODE_START
-  // using strtok_r reference: https://codeday.me/ko/qa/20190508/495336.html
-  char *ptr; // make q point to start of file_name.
-  char *rest; // to point to the rest of the string after token extraction.
-  char *token; // to point to the actual token returned.
-
-  /* init cpy_file_name for calculating argc. */
-  char *cpy_file_name = (char *)malloc (sizeof (file_name));
-  strlcpy (cpy_file_name, file_name, strlen(file_name) + 1);
-
-  ptr = cpy_file_name;
-
-  /*
-  argv[0] = prog_name
-  argv[1] = 1st arg
-  argv[2] = 2nd arg
-  ...
-  */
-   
-  char **argv;
-  int argc = 0;
-  /* Get argc's length. */
-  printf("  >> Get argc's length; while loop.\n");
-  token = strtok_r (ptr, " ", &rest);
-printf("    >> obtd token: %s\n", token);
-printf("       in argc: %d\n", argc);
-  argc ++;
-  ptr = rest;
-  while (token != NULL)
-  {
-    token = strtok_r (ptr, " ", &rest);
-printf("    >> obtd token: %s\n", token);
-printf("       in argc: %d\n", argc);
-    argc ++;
-    ptr = rest;
-  }
-  argc --;
-printf("    >> summery argc: %d\n", argc);
-  free (cpy_file_name);
-
-  argv = (char **)malloc(sizeof(char *) * argc);
-
-  ptr = file_name;
-  // loop untill strtok_r return NULL
-   
-  int i = 0;
-  token = strtok_r (ptr, " ", &rest);
-  argv[i] = token;
-printf("      >> saved argv: %s\n", argv[i]);
-printf("      >> i: %d\n", i);
-  i ++;
-  ptr = rest;
-  while (i != argc)
-  {
-    token = strtok_r (ptr, " ", &rest);
-    argv[i] = token;
-printf("      >> saved argv: %s\n", argv[i]);
-printf("      >> i: %d\n", i);
-    i ++;
-    ptr = rest;
-  }
-
-  // MYCODE_END
-printf("    >> MYCODE_END\n");
-  
-
   /* Open executable file. */
-  // file = filesys_open (file_name); PREV_CODE
-printf("    >> argv[0]'s size: %d\n", sizeof (argv[0]));
+printf("    >> argv[0]'s size: %d\n", sizeof (file_name));
   // lock_acquire (&file_lock);
-  file = filesys_open (argv[0]); // MYCODE
+  file = filesys_open (file_name);
   if (file == NULL) 
     {
 printf ("load: %s: open failed\n", file_name);
@@ -459,15 +469,11 @@ printf(" >> validate_segment() return false!\n ");
         }
     }
 
-  /* REMOVE 
-  if (!setup_stack (esp))
-    goto done;
-  */
 
  // MYCODE_START
 printf("MYCODE_START ; invoking setup_stack()... \n");
   // set up stack
-  if (!setup_stack (esp, argv, argc)){
+  if (!setup_stack (esp)){
 printf("MYCODE_END ; setup_stack() returns false \n");
     goto done;
   }
@@ -611,23 +617,11 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
   return true;
 }
 
-/* Create a minimal stack by mapping a zeroed page at the top of
-   user virtual memory. */
-static bool
-setup_stack (void **esp, char **argv, int argc) 
+// MYCODE_START
+void
+push_to_esp (void *filename, char **argv, int argc)
 {
-printf(" >> setup_stack() invoked! \n");
-  uint8_t *kpage;
-  bool success = false;
-
-  kpage = palloc_get_page (PAL_USER | PAL_ZERO);
-  if (kpage != NULL) 
-    {
-      success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
-      if (success){
-        *esp = PHYS_BASE; // initialize sp
-        // MYCODE_START
-printf("MYCODE_START\n");
+printf(" >> push_to_esp invoked!\n");
 printf("  >> passed argc: %d\n", argc);
 
         /* push command line (in argv) value.
@@ -672,8 +666,6 @@ printf("  >> push word-align finished / push NULL start\n");
 printf("  >> push NULL finished / push address of argv[i] start\n");
 
         /* push address of argv[i]. */
-        // *esp -= sizeof (char*);
-        // *(char**)*esp = 0;
         for (int i = argc - 1; i >= 0; i--)
         {
           *esp -= sizeof (uint32_t **);
@@ -706,8 +698,25 @@ printf("  >> push return address finished / free(argv) start\n");
 hex_dump (*esp, *esp, 100, 1);
         if (argv != NULL)
           free (argv);
-printf("MYCODE_END\n");
-        // MYCODE_END
+printf(" >> push_to_esp end!\n");
+}
+// MYCODE_END
+
+/* Create a minimal stack by mapping a zeroed page at the top of
+   user virtual memory. */
+static bool
+setup_stack (void **esp) 
+{
+printf(" >> setup_stack() invoked! \n");
+  uint8_t *kpage;
+  bool success = false;
+
+  kpage = palloc_get_page (PAL_USER | PAL_ZERO);
+  if (kpage != NULL) 
+    {
+      success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
+      if (success){
+        *esp = PHYS_BASE; // initialize sp
       }
       else
         palloc_free_page (kpage);
