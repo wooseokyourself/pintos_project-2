@@ -214,7 +214,7 @@ printf("  >> push word-align finished / push NULL start\n");
 
     /* push NULL */
     *esp -= 4;
-    **(uint32_t **)esp = 0;
+    **(uint8_t **)esp = 0;
 
 printf("  >> push NULL finished / push address of argv[i] start\n");
 
@@ -248,9 +248,8 @@ printf("  >> push the value of argc finished / push return address start\n");
     **(uint32_t **)esp = 0;
 printf("  >> push return address finished / free(argv) start\n");
 
-hex_dump (*esp, *esp, 100, 1);
-    if (argv != NULL)
-      free (argv);
+hex_dump (*esp, *esp, 100, 1);  
+    free (argv);
 printf(" >> push_to_esp end!\n");
 // MYCODE_END
   }
