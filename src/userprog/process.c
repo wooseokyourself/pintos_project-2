@@ -21,13 +21,6 @@
 static thread_func start_process NO_RETURN;
 static bool load (const char *cmdline, void (**eip) (void), void **esp);
 
-// MYCODE_START
-/* These are defined in threads/thread.c */
-extern struct list opened_file_list;
-extern struct lock tid_lock;
-extern struct lock file_lock;
-// MYCODE_END
-
 /* Starts a new thread running a user program loaded from
    FILENAME.  The new thread may be scheduled (and may even exit)
    before process_execute() returns.  Returns the new process's
@@ -376,12 +369,12 @@ printf("    >> MYCODE_END\n");
   /* Open executable file. */
   // file = filesys_open (file_name); PREV_CODE
 printf("    >> argv[0]'s size: %d\n", sizeof (argv[0]));
-  lock_acquire (&file_lock);
+  // lock_acquire (&file_lock);
   file = filesys_open (argv[0]); // MYCODE
   if (file == NULL) 
     {
 printf ("load: %s: open failed\n", file_name);
-      lock_release (&file_lock);
+      // lock_release (&file_lock);
       goto done; 
     }
 
@@ -453,13 +446,13 @@ printf(" >> header is 0 \n");
               if (!load_segment (file, file_page, (void *) mem_page,
                                  read_bytes, zero_bytes, writable)){
 printf(" >> load_segment() failed! \n");
-                lock_release (&file_lock);
+                // lock_release (&file_lock);
                 goto done;
                                  }
             }
           else{
 printf(" >> validate_segment() return false!\n ");
-            lock_release (&file_lock);
+            // lock_release (&file_lock);
             goto done;
           }
           break;

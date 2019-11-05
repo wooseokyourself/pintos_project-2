@@ -34,18 +34,11 @@ static struct thread *idle_thread;
 /* Initial thread, the thread running init.c:main(). */
 static struct thread *initial_thread;
 
-// MYCODE_START
-/* List of fd. */
-struct list opened_file_list;
-
-int file_open_count;
-// MYCODE_END
-
 /* Lock used by allocate_tid(). */
 struct lock tid_lock;
 
 /* Lock used by userprog. */
-struct lock file_lock;
+// struct lock file_lock;
 
 /* Stack frame for kernel_thread(). */
 struct kernel_thread_frame 
@@ -102,12 +95,6 @@ thread_init (void)
   lock_init (&tid_lock);
   list_init (&ready_list);
   list_init (&all_list);
-
-// MYCODE_START
-#ifdef USERPROG
-  list_init (&opened_file_list);
-#endif
-// MYCODE_END
 
   /* Set up a thread structure for the running thread. */
   initial_thread = running_thread ();
