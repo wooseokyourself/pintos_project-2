@@ -291,17 +291,6 @@ process_wait (tid_t child_tid)
 //printf("  >> invoking process_wait () !\n");
   struct thread *current = thread_current();
   struct thread *child = current->child;
-  if (child == NULL) 
-    return -1;
-  else
-  {
-    sema_down (&(child->child_lock)); // wait
-    process_wait (child->tid);
-    int exit_code = child->exit_code;
-    child->child = NULL; // remove
-    sema_up (&(child->memory_lock)); // send signal to the parent
-    return exit_code;
-  }
       /*
       이를 구현하기 위해, 현재 프로세스(스레드)는 "thread/synch.h"에 정의된
       void cond_wait (struct condition *, struct lock *)를 통해 자식프로세스의 종료를 기다리고,
@@ -309,7 +298,7 @@ process_wait (tid_t child_tid)
       를 통해 종료를 알리게 한다.
        --> 세마포어로 구현함
       */
-/*
+
   if (child->tid != child_tid)
   {
 //printf("  >> this pid is not a direct child of current process! return -1\n");
@@ -332,13 +321,14 @@ process_wait (tid_t child_tid)
     else // SUCCESS
     {
       sema_down (&(child->child_lock)); // wait
+      int exit_code = child->exit_code;
       child->child = NULL; // remove
       sema_up (&(child->memory_lock)); // send signal to the parent
-      return child->exit_code;
+      return exit_code;
     }
     // MYCODE_END
   }
-  */
+  
   /*
   int i=0;
   int j=0;
