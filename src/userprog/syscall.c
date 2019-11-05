@@ -82,12 +82,12 @@ syscall_handler (struct intr_frame *f)
 
     case SYS_READ:                   // args number: 3
       check_user_vaddr (sp + 4);
-      f->eax = read ( (int)*(uint32_t *)(sp + 4), (void *)*(uint32_t *)(sp + 8), (unsigned)*((uint32_t *)(sp + 12) );
+      f->eax = read ( (int)*(uint32_t *)(sp + 4), (void *)*(uint32_t *)(sp + 8), (unsigned)*((uint32_t *)(sp + 12)) );
       break;
 
     case SYS_WRITE:                  // args number: 3
       check_user_vaddr (sp + 4);
-      f->eax = write( (int)*(uint32_t *)(sp + 4), (void *)*(uint32_t *)(sp + 8), (unsigned)*((uint32_t *)(sp + 12) );
+      f->eax = write( (int)*(uint32_t *)(sp + 4), (void *)*(uint32_t *)(sp + 8), (unsigned)*((uint32_t *)(sp + 12)) );
       break;
 
     case SYS_SEEK:                   // args number: 2
