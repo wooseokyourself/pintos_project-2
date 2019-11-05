@@ -176,6 +176,8 @@ open (const char *file)
     {
       if (getfile(i) == NULL)
       {
+        if (strcmp (thread_current()->name, file) == false)
+          file_deny_write (return_file);
         thread_current()->fd[i] = return_file;
 //printf("  >> filesys_open(file) success, return %d, idx of fd", i);
         return i;
@@ -235,8 +237,11 @@ write (int fd, const void *buffer, unsigned size) // 이거 내용 부정확하�
     struct file *f = getfile (fd);
     if (f == NULL)
       exit(-1);
-    else
-      return file_write (f, buffer, size);
+    if (f->deny_write)
+    {
+      file_deny_write (f);
+    }
+    return file_write (f, buffer, size);
   }
 }
 
@@ -267,7 +272,10 @@ close (int fd)
   if (f == NULL)
     exit(-1);
   else
+  {
+    f = NULL;
     file_close (f);
+  }
 }
 
 struct file
