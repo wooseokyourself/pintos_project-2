@@ -51,7 +51,7 @@ process_execute (const char *file_name)
   // >> 여기에 NULL 넣어줬더니 kernel PANIC 떠서 dummyptr 해줌.
 
   // MYCODE_START
-printf(">> in process_execute, token: %s\n", token);
+//printf(">> in process_execute, token: %s\n", token);
   if (filesys_open (token) == NULL)
     return -1;
   // MYCODE_END
@@ -68,7 +68,7 @@ printf(">> in process_execute, token: %s\n", token);
 static void
 start_process (void *file_name_)
 {
-printf(" >> start_process() start!\n");
+//printf(" >> start_process() start!\n");
   char *file_name = file_name_;
   struct intr_frame if_;
   bool success;
@@ -90,7 +90,7 @@ printf(" >> start_process() start!\n");
 ////////////////// strtok start ////////////////////
 // input: char *file_name
 
-printf("    >> MYCODE_START\n");
+//printf("    >> MYCODE_START\n");
   // MYCODE_START
   // using strtok_r reference: https://codeday.me/ko/qa/20190508/495336.html
   char *ptr; // make q point to start of file_name.
@@ -113,22 +113,22 @@ printf("    >> MYCODE_START\n");
   char **argv;
   int argc = 0;
   /* Get argc's length. */
-  printf("  >> Get argc's length; while loop.\n");
+//printf("  >> Get argc's length; while loop.\n");
   token = strtok_r (ptr, " ", &rest);
-printf("    >> obtd token: %s\n", token);
-printf("       in argc: %d\n", argc);
+//printf("    >> obtd token: %s\n", token);
+//printf("       in argc: %d\n", argc);
   argc ++;
   ptr = rest;
   while (token != NULL)
   {
     token = strtok_r (ptr, " ", &rest);
-printf("    >> obtd token: %s\n", token);
-printf("       in argc: %d\n", argc);
+//printf("    >> obtd token: %s\n", token);
+//printf("       in argc: %d\n", argc);
     argc ++;
     ptr = rest;
   }
   argc --;
-printf("    >> summery argc: %d\n", argc);
+//printf("    >> summery argc: %d\n", argc);
   free (cpy_file_name);
 
   argv = (char **)malloc(sizeof(char *) * argc);
@@ -139,21 +139,21 @@ printf("    >> summery argc: %d\n", argc);
   int i = 0;
   token = strtok_r (ptr, " ", &rest);
   argv[i] = token;
-printf("      >> saved argv: %s\n", argv[i]);
-printf("      >> i: %d\n", i);
+//printf("      >> saved argv: %s\n", argv[i]);
+//printf("      >> i: %d\n", i);
   i ++;
   ptr = rest;
   while (i != argc)
   {
     token = strtok_r (ptr, " ", &rest);
     argv[i] = token;
-printf("      >> saved argv: %s\n", argv[i]);
-printf("      >> i: %d\n", i);
+//printf("      >> saved argv: %s\n", argv[i]);
+//printf("      >> i: %d\n", i);
     i ++;
     ptr = rest;
   }
   // MYCODE_END
-printf("    >> MYCODE_END\n");
+//printf("    >> MYCODE_END\n");
 
 // output: char **argv, int argc
 ////////////////// strtok end ////////////////////
@@ -163,7 +163,7 @@ printf("    >> MYCODE_END\n");
 
 
   success = load (argv[0], &if_.eip, &if_.esp);
-printf(" >> in start_process(), load() returns true!\n");
+//printf(" >> in start_process(), load() returns true!\n");
 
 
 
@@ -174,8 +174,8 @@ printf(" >> in start_process(), load() returns true!\n");
   {
     //  push_to_esp (&if_.esp, &file_name, &&argv, argc);
     void **esp = &if_.esp;
-printf(" >> push_to_esp invoked!\n");
-printf("  >> passed argc: %d\n", argc);
+//printf(" >> push_to_esp invoked!\n");
+//printf("  >> passed argc: %d\n", argc);
 
     /* push command line (in argv) value.
 
@@ -187,70 +187,70 @@ printf("  >> passed argc: %d\n", argc);
     */
 
     int length = 0;
-printf("  >> for loop pushing argv execute.\n");
+//printf("  >> for loop pushing argv execute.\n");
     for (int i = argc - 1; i >= 0; i--)
     {
-printf("  >> i: %d\n", i);
+//printf("  >> i: %d\n", i);
       length = strlen (argv[i]) + 1; // '\n'도 넣기 위해 +1
-printf("  >> length of argv[i]: %d\n", length);
+//printf("  >> length of argv[i]: %d\n", length);
       *esp -= length;
-printf("      >> extract by: %d\n", length + 1);
+//printf("      >> extract by: %d\n", length + 1);
       memcpy (*esp, argv[i], length);
       // strlcpy (*esp, argv[i], length + 1);
       argv[i] = *esp;
     }
 
-printf("  >> push command line finished / push word-align start\n");
+//printf("  >> push command line finished / push word-align start\n");
     /* push word-align. */
     while ( (PHYS_BASE - *esp) % 4 != 0 ){
-printf("      >> PHYS_BASE - *esp = %d\n", PHYS_BASE - *esp);
-printf("      >> , so we extract stack %d\n", sizeof (uint8_t));
-printf("      >> , and push 0.\n");
+//printf("      >> PHYS_BASE - *esp = %d\n", PHYS_BASE - *esp);
+//printf("      >> , so we extract stack %d\n", sizeof (uint8_t));
+//printf("      >> , and push 0.\n");
       *esp -= sizeof (uint8_t);
       **(uint8_t **)esp = 0;
     }
 
-printf("  >> push word-align finished / push NULL start\n");
+//printf("  >> push word-align finished / push NULL start\n");
 
     /* push NULL */
     *esp -= 4;
     *(uint8_t *)*esp = 0;
 
-printf("  >> push NULL finished / push address of argv[i] start\n");
+//printf("  >> push NULL finished / push address of argv[i] start\n");
 
     /* push address of argv[i]. */
     for (int i = argc - 1; i >= 0; i--)
     {
       *esp -= sizeof (uint32_t **);
-printf("      >> extract by: %d\n", sizeof (uint32_t **));
+//printf("      >> extract by: %d\n", sizeof (uint32_t **));
       *(uint32_t **)*esp = argv[i];
     }
 
-printf("  >> push address of argv[i] finished / push address of argv start\n");
+//printf("  >> push address of argv[i] finished / push address of argv start\n");
 
     /* push address of argv. */
     *esp -= sizeof (uint32_t **);
-printf("      >> extract by: %d\n", sizeof (uint32_t **));
+//printf("      >> extract by: %d\n", sizeof (uint32_t **));
     *(uint32_t *)*esp = *esp + 4;
 
-printf("  >> push address of argv finished / push the value of argc start\n");
+//printf("  >> push address of argv finished / push the value of argc start\n");
 
     /* push the value of argc. */
     *esp -= sizeof (uint32_t);
-printf("      >> extract by: %d\n", sizeof (uint32_t));
+//printf("      >> extract by: %d\n", sizeof (uint32_t));
     *(uint32_t *)*esp = argc;
 
-printf("  >> push the value of argc finished / push return address start\n");
+//printf("  >> push the value of argc finished / push return address start\n");
 
     /* push return address. */
     // 리턴어드레스의 크기는 4란다.
     *esp -= 4;
     *(uint32_t *)*esp = 0;
-printf("  >> push return address finished / free(argv) start\n");
+//printf("  >> push return address finished / free(argv) start\n");
 
 hex_dump (*esp, *esp, 100, 1);  
     free (argv);
-printf(" >> push_to_esp end!\n");
+//printf(" >> push_to_esp end!\n");
 // MYCODE_END
   }
 
@@ -269,9 +269,9 @@ printf(" >> push_to_esp end!\n");
      arguments on the stack in the form of a `struct intr_frame',
      we just point the stack pointer (%esp) to our stack frame
      and jump to it. */
-printf(" >> in start_process(), invoking asm volatile()... \n");
+//printf(" >> in start_process(), invoking asm volatile()... \n");
   asm volatile ("movl %0, %%esp; jmp intr_exit" : : "g" (&if_) : "memory");
-printf(" >> in start_process(), asm volatile() finished! \n ");
+//printf(" >> in start_process(), asm volatile() finished! \n ");
   NOT_REACHED ();
 }
 
@@ -288,12 +288,12 @@ int
 process_wait (tid_t child_tid) 
 {
   // MYCODE_START
-printf("  >> invoking process_wait () !\n");
+//printf("  >> invoking process_wait () !\n");
   struct thread *current = thread_current();
   struct thread *child = current->child;
   if (child->tid != child_tid)
   {
-printf("  >> this pid is not a direct child of current process! return -1\n");
+//printf("  >> this pid is not a direct child of current process! return -1\n");
     return -1;
   }
   else
@@ -302,18 +302,18 @@ printf("  >> this pid is not a direct child of current process! return -1\n");
     {
       if (child->isRun == true)
       {
-printf("  >> this pid was terminated by KERNEL!\n");
+//printf("  >> this pid was terminated by KERNEL!\n");
         return -1;
       }
       else // (child->isRun == false)
       {
-printf("  >> this pid was terminated by parent!\n");
+//printf("  >> this pid was terminated by parent!\n");
         return -1;
       }
     }
     else if (child->status == THREAD_BLOCKED) // 이거 조건 부정확함!!!!!!
     {
-printf("  >> this pid is already waited!\n");
+//printf("  >> this pid is already waited!\n");
       return -1;
     }
     else // SUCCESS
@@ -369,7 +369,7 @@ process_exit (void)
     sema_up (&(cur->child_lock));
     sema_down (&(cur->memory_lock));
     // MYCODE_END
-printf("    >> process_exit() complete\n!");
+//printf("    >> process_exit() complete\n!");
 }
 
 /* Sets up the CPU for running user code in the current
@@ -464,8 +464,8 @@ static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
 bool
 load (const char *file_name, void (**eip) (void), void **esp) 
 { 
-printf(" >> load() start!\n");
-printf("   >> *file_name = %s\n", file_name);
+//printf(" >> load() start!\n");
+//printf("   >> *file_name = %s\n", file_name);
   struct thread *t = thread_current ();
   struct Elf32_Ehdr ehdr;
   struct file *file = NULL;
@@ -479,12 +479,12 @@ printf("   >> *file_name = %s\n", file_name);
   process_activate ();
 
   /* Open executable file. */
-printf("    >> argv[0]'s size: %d\n", sizeof (file_name));
+//printf("    >> argv[0]'s size: %d\n", sizeof (file_name));
   // lock_acquire (&file_lock);
   file = filesys_open (file_name);
   if (file == NULL) 
     {
-printf ("load: %s: open failed\n", file_name);
+//printf ("load: %s: open failed\n", file_name);
       // lock_release (&file_lock);
       goto done; 
     }
@@ -506,7 +506,7 @@ printf ("load: %s: open failed\n", file_name);
   file_ofs = ehdr.e_phoff;
   for (int i = 0; i < ehdr.e_phnum; i++) 
     {
-printf("  >> inside for? \n" );
+//printf("  >> inside for? \n" );
       struct Elf32_Phdr phdr;
 
       if (file_ofs < 0 || file_ofs > file_length (file))
@@ -539,7 +539,7 @@ printf("  >> inside for? \n" );
               uint32_t read_bytes, zero_bytes;
               if (phdr.p_filesz > 0)
                 {
-printf(" >> header is not 0 \n");
+//printf(" >> header is not 0 \n");
                   /* Normal segment.
                      Read initial part from disk and zero the rest. */
                   read_bytes = page_offset + phdr.p_filesz;
@@ -548,7 +548,7 @@ printf(" >> header is not 0 \n");
                 }
               else 
                 {
-printf(" >> header is 0 \n");
+//printf(" >> header is 0 \n");
                   /* Entirely zero.
                      Don't read anything from disk. */
                   read_bytes = 0;
@@ -556,13 +556,13 @@ printf(" >> header is 0 \n");
                 }
               if (!load_segment (file, file_page, (void *) mem_page,
                                  read_bytes, zero_bytes, writable)){
-printf(" >> load_segment() failed! \n");
+//printf(" >> load_segment() failed! \n");
                 // lock_release (&file_lock);
                 goto done;
                                  }
             }
           else{
-printf(" >> validate_segment() return false!\n ");
+//printf(" >> validate_segment() return false!\n ");
             // lock_release (&file_lock);
             goto done;
           }
@@ -572,13 +572,13 @@ printf(" >> validate_segment() return false!\n ");
 
 
  // MYCODE_START
-printf("MYCODE_START ; invoking setup_stack()... \n");
+//printf("MYCODE_START ; invoking setup_stack()... \n");
   // set up stack
   if (!setup_stack (esp)){
-printf("MYCODE_END ; setup_stack() returns false \n");
+//printf("MYCODE_END ; setup_stack() returns false \n");
     goto done;
   }
-printf("MYCODE_END ; setup_stack() returns success! \n");
+//printf("MYCODE_END ; setup_stack() returns success! \n");
  // MYCODE_END
 
   /* Start address. */
@@ -589,9 +589,9 @@ printf("MYCODE_END ; setup_stack() returns success! \n");
 
  done:
   /* We arrive here whether the load is successful or not. */
-printf("  >> invoking file_cloes (file) ... \n");
+//printf("  >> invoking file_cloes (file) ... \n");
   file_close (file);
-printf("  >> file_cloes (file) clear. load() returns success! \n");
+//printf("  >> file_cloes (file) clear. load() returns success! \n");
   return success;
 }
 
@@ -606,32 +606,32 @@ validate_segment (const struct Elf32_Phdr *phdr, struct file *file)
 {
   /* p_offset and p_vaddr must have the same page offset. */
   if ((phdr->p_offset & PGMASK) != (phdr->p_vaddr & PGMASK)){ 
-printf("    ! validate_segment() false: 0 \n");
+//printf("    ! validate_segment() false: 0 \n");
     return false; 
   }
 
   /* p_offset must point within FILE. */
   if (phdr->p_offset > (Elf32_Off) file_length (file)){ 
-printf("    ! validate_segment() false: 1 \n");
+//printf("    ! validate_segment() false: 1 \n");
     return false; 
   }
 
   /* p_memsz must be at least as big as p_filesz. */
   if (phdr->p_memsz < phdr->p_filesz){ 
-printf("    ! validate_segment() false: 2 \n");
+//printf("    ! validate_segment() false: 2 \n");
     return false; 
   }
 
   /* The segment must not be empty. */
   if (phdr->p_memsz == 0){ 
-printf("    ! validate_segment() false: 3 \n");
+//rintf("    ! validate_segment() false: 3 \n");
     return false; 
   }
   
   /* The virtual memory region must both start and end within the
      user address space range. */
   if (!is_user_vaddr ((void *) phdr->p_vaddr)){ 
-printf("    ! validate_segment() false: 4 \n");
+//printf("    ! validate_segment() false: 4 \n");
     return false; 
   }
   if (!is_user_vaddr ((void *) (phdr->p_vaddr + phdr->p_memsz))){ 
@@ -641,7 +641,7 @@ printf("    ! validate_segment() false: 5 \n");
   /* The region cannot "wrap around" across the kernel virtual
      address space. */
   if (phdr->p_vaddr + phdr->p_memsz < phdr->p_vaddr){ 
-printf("    ! validate_segment() false: 6 \n");
+//printf("    ! validate_segment() false: 6 \n");
     return false; 
   }
 
@@ -651,7 +651,7 @@ printf("    ! validate_segment() false: 6 \n");
      could quite likely panic the kernel by way of null pointer
      assertions in memcpy(), etc. */
   if (phdr->p_vaddr < PGSIZE){ 
-printf("    ! validate_segment() false: 7 \n");
+//printf("    ! validate_segment() false: 7 \n");
     return false; 
   }
 
@@ -723,7 +723,7 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 static bool
 setup_stack (void **esp) 
 {
-printf(" >> setup_stack() invoked! \n");
+//printf(" >> setup_stack() invoked! \n");
   uint8_t *kpage;
   bool success = false;
 

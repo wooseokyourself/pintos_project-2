@@ -22,9 +22,9 @@ void check_user_vaddr (const void *vaddr);
 void
 syscall_init (void) 
 {
-printf("syscall_init START!\n");
+//printf("syscall_init START!\n");
   intr_register_int (0x30, 3, INTR_ON, syscall_handler, "syscall");
-printf("syscall_init END!\n");
+//printf("syscall_init END!\n");
 }
 
 void
@@ -34,8 +34,8 @@ syscall_handler (struct intr_frame *f)
     인자가 1개인 녀석은 esp + 4 부터 시작하고, 2개 이상은 녀석은 esp + 20 부터 시작한다.
     리턴값이 있는 함수는, 그 리턴값을 eax에 넣어주어야 한다. (docs p.36)
   */
-  printf ("system call!\n");
-printf("syscall: %d\n", *(uint32_t *)(f->esp));
+//printf ("system call!\n");
+//printf("syscall: %d\n", *(uint32_t *)(f->esp));
 hex_dump (f->esp, f->esp, 100, 1);
   switch (*(uint32_t *)(f->esp))
   {
@@ -140,7 +140,7 @@ exec (const char *cmd_lime)
 int
 wait (pid_t pid)
 {
-printf(" SYSCALL: wait \n");
+//printf(" SYSCALL: wait \n");
   return process_wait (pid);
 }
 
@@ -159,11 +159,11 @@ remove (const char *file)
 int
 open (const char *file)
 {
-printf(" SYSCALL: open \n");
+//printf(" SYSCALL: open \n");
   struct file *return_file = filesys_open (file);
   if (return_file == NULL)
   {
-printf("  >> filesys_open(file) failed ; file points NULL, return -1\n");
+//printf("  >> filesys_open(file) failed ; file points NULL, return -1\n");
     return -1;
   }
   else
@@ -173,11 +173,11 @@ printf("  >> filesys_open(file) failed ; file points NULL, return -1\n");
       if (getfile(i) == NULL)
       {
         thread_current()->fd[i] = return_file;
-printf("  >> filesys_open(file) success, return %d, idx of fd", i);
+//printf("  >> filesys_open(file) success, return %d, idx of fd", i);
         return i;
       }
     }
-printf("  >> filesys_open(file) failed ; thread's fd is full, return -1\n");
+//printf("  >> filesys_open(file) failed ; thread's fd is full, return -1\n");
     return -1;
   }
 }
