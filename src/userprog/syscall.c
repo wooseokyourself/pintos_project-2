@@ -163,16 +163,22 @@ printf(" SYSCALL: open \n");
   struct file *return_file = filesys_open (file);
   if (return_file == NULL)
   {
-printf("  >> filesys_open(file) failed, return -1\n");
+printf("  >> filesys_open(file) failed ; file points NULL, return -1\n");
     return -1;
   }
   else
   {
-printf("  >> filesys_open(file) success, return fd(%d)", file_open_count);
-    return_file->fd = file_open_count;
-    file_open_count++;
-    list_push_back (&opened_file_list, &(return_file->elem));
-    return return_file->fd;
+    for (int i=3; i<128; i++)
+    {
+      if (getfile(i) == NULL)
+      {
+        thread_current()->fd[i] = return_file;
+printf("  >> filesys_open(file) success, return %d, idx of fd", i);
+        return i;
+      }
+    }
+printf("  >> filesys_open(file) failed ; thread's fd is full, return -1\n");
+    return -1;
   }
 }
 
