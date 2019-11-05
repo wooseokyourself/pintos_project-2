@@ -82,6 +82,10 @@ printf(" >> start_process() start!\n");
     여기에서 file_name parsing 하고, load의 인자인 file_name에 파일명만 넣기
   */
 
+
+
+
+
 ////////////////// strtok start ////////////////////
 // input: char *file_name
 
@@ -153,10 +157,107 @@ printf("    >> MYCODE_END\n");
 // output: char **argv, int argc
 ////////////////// strtok end ////////////////////
 
+
+
+
+
   success = load (argv[0], &if_.eip, &if_.esp);
 printf(" >> in start_process(), load() returns true!\n");
+
+
+
+
+
+
   if (success)
-    push_to_esp (&if_.esp, &file_name, &&argv, argc);
+  {
+    //  push_to_esp (&if_.esp, &file_name, &&argv, argc);
+    void **esp = &if_.esp;
+printf(" >> push_to_esp invoked!\n");
+printf("  >> passed argc: %d\n", argc);
+
+    /* push command line (in argv) value.
+
+        ls      -l      foo      bar
+      argv[0]   [1]     [2]      [3]
+
+      these will be pushed in right-to-left order.
+      each size is (strlen (argv[i])) + 1
+    */
+
+    int length = 0;
+printf("  >> for loop pushing argv execute.\n");
+    for (int i = argc - 1; i >= 0; i--)
+    {
+printf("  >> i: %d\n", i);
+      length = strlen (argv[i]);
+printf("  >> length of argv[i]: %d\n", length);
+      *esp -= length + 1 ; // '\n'도 넣기 위해 +1
+printf("      >> extract by: %d\n", length + 1);
+      // memcpy (*esp, argv[i], (strlen (argv[i]) + 1) );
+      strlcpy (*esp, argv[i], length + 1);
+      argv[i] = *esp;
+    }
+
+printf("  >> push command line finished / push word-align start\n");
+    /* push word-align. */
+    while ( (PHYS_BASE - *esp) % 4 != 0 ){
+printf("      >> PHYS_BASE - *esp = %d\n", PHYS_BASE - *esp);
+printf("      >> , so we extract stack %d\n", sizeof (uint8_t));
+printf("      >> , and push 0.\n");
+      *esp -= sizeof (uint8_t);
+      **(uint8_t **)esp = 0;
+    }
+
+printf("  >> push word-align finished / push NULL start\n");
+
+    /* push NULL */
+    *esp -= 4;
+    **(uint32_t **)esp = 0;
+
+printf("  >> push NULL finished / push address of argv[i] start\n");
+
+    /* push address of argv[i]. */
+    for (int i = argc - 1; i >= 0; i--)
+    {
+      *esp -= sizeof (uint32_t **);
+printf("      >> extract by: %d\n", sizeof (uint32_t **));
+      **(uint32_t **)esp = argv[i];
+    }
+
+printf("  >> push address of argv[i] finished / push address of argv start\n");
+
+    /* push address of argv. */
+    *esp -= sizeof (uint32_t **);
+printf("      >> extract by: %d\n", sizeof (uint32_t **));
+    **(uint32_t **)esp = argv;
+
+printf("  >> push address of argv finished / push the value of argc start\n");
+
+    /* push the value of argc. */
+    *esp -= sizeof (uint32_t);
+printf("      >> extract by: %d\n", sizeof (uint32_t));
+    **(uint32_t **)esp = argc;
+
+printf("  >> push the value of argc finished / push return address start\n");
+
+    /* push return address. */
+    // 리턴어드레스의 크기는 4란다.
+    *esp -= 4;
+    **(uint32_t **)esp = 0;
+printf("  >> push return address finished / free(argv) start\n");
+
+hex_dump (*esp, *esp, 100, 1);
+    if (argv != NULL)
+      free (argv);
+printf(" >> push_to_esp end!\n");
+// MYCODE_END
+  }
+
+
+
+
+
   /* If load failed, quit. */
   palloc_free_page (file_name);
   if (!success) 
@@ -355,7 +456,6 @@ static bool validate_segment (const struct Elf32_Phdr *, struct file *);
 static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
                           uint32_t read_bytes, uint32_t zero_bytes,
                           bool writable);
-static void push_to_esp (void **esp, char *filename, char **argv, int argc); // MYFUNC
 
 /* Loads an ELF executable from FILE_NAME into the current thread.
    Stores the executable's entry point into *EIP
@@ -617,91 +717,6 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
     }
   return true;
 }
-
-// MYCODE_START
-static void
-push_to_esp (void **esp, char *filename, char **argv, int argc)
-{
-printf(" >> push_to_esp invoked!\n");
-printf("  >> passed argc: %d\n", argc);
-
-        /* push command line (in argv) value.
-
-            ls      -l      foo      bar
-          argv[0]   [1]     [2]      [3]
-
-          these will be pushed in right-to-left order.
-          each size is (strlen (argv[i])) + 1
-        */
-
-        int length = 0;
-printf("  >> for loop pushing argv execute.\n");
-        for (int i = argc - 1; i >= 0; i--)
-        {
-printf("  >> i: %d\n", i);
-          length = strlen (argv[i]);
-printf("  >> length of argv[i]: %d\n", length);
-          *esp -= length + 1 ; // '\n'도 넣기 위해 +1
-printf("      >> extract by: %d\n", length + 1);
-          // memcpy (*esp, argv[i], (strlen (argv[i]) + 1) );
-          strlcpy (*esp, argv[i], length + 1);
-          argv[i] = *esp;
-        }
-
-printf("  >> push command line finished / push word-align start\n");
-        /* push word-align. */
-        while ( (PHYS_BASE - *esp) % 4 != 0 ){
-printf("      >> PHYS_BASE - *esp = %d\n", PHYS_BASE - *esp);
-printf("      >> , so we extract stack %d\n", sizeof (uint8_t));
-printf("      >> , and push 0.\n");
-          *esp -= sizeof (uint8_t);
-          **(uint8_t **)esp = 0;
-        }
-
-printf("  >> push word-align finished / push NULL start\n");
-
-        /* push NULL */
-        *esp -= 4;
-        **(uint32_t **)esp = 0;
-
-printf("  >> push NULL finished / push address of argv[i] start\n");
-
-        /* push address of argv[i]. */
-        for (int i = argc - 1; i >= 0; i--)
-        {
-          *esp -= sizeof (uint32_t **);
-printf("      >> extract by: %d\n", sizeof (uint32_t **));
-          **(uint32_t **)esp = argv[i];
-        }
-
-printf("  >> push address of argv[i] finished / push address of argv start\n");
-
-        /* push address of argv. */
-        *esp -= sizeof (uint32_t **);
-printf("      >> extract by: %d\n", sizeof (uint32_t **));
-        **(uint32_t **)esp = argv;
-
-printf("  >> push address of argv finished / push the value of argc start\n");
-
-        /* push the value of argc. */
-        *esp -= sizeof (uint32_t);
-printf("      >> extract by: %d\n", sizeof (uint32_t));
-        **(uint32_t **)esp = argc;
-
-printf("  >> push the value of argc finished / push return address start\n");
-
-        /* push return address. */
-        // 리턴어드레스의 크기는 4란다.
-        *esp -= 4;
-        **(uint32_t **)esp = 0;
-printf("  >> push return address finished / free(argv) start\n");
-
-hex_dump (*esp, *esp, 100, 1);
-        if (argv != NULL)
-          free (argv);
-printf(" >> push_to_esp end!\n");
-}
-// MYCODE_END
 
 /* Create a minimal stack by mapping a zeroed page at the top of
    user virtual memory. */
