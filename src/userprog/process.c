@@ -355,7 +355,7 @@ static bool validate_segment (const struct Elf32_Phdr *, struct file *);
 static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
                           uint32_t read_bytes, uint32_t zero_bytes,
                           bool writable);
-static void push_to_esp (void *filename, char **argv, int argc); // MYFUNC
+static void push_to_esp (void **esp, char *filename, char **argv, int argc); // MYFUNC
 
 /* Loads an ELF executable from FILE_NAME into the current thread.
    Stores the executable's entry point into *EIP
@@ -404,7 +404,7 @@ printf ("load: %s: open failed\n", file_name);
 
   /* Read program headers. */
   file_ofs = ehdr.e_phoff;
-  for (i = 0; i < ehdr.e_phnum; i++) 
+  for (int i = 0; i < ehdr.e_phnum; i++) 
     {
 printf("  >> inside for? \n" );
       struct Elf32_Phdr phdr;
@@ -619,8 +619,8 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 }
 
 // MYCODE_START
-void
-push_to_esp (void *filename, char **argv, int argc)
+static void
+push_to_esp (void **esp, char *filename, char **argv, int argc)
 {
 printf(" >> push_to_esp invoked!\n");
 printf("  >> passed argc: %d\n", argc);
