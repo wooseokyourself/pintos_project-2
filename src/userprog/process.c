@@ -51,6 +51,7 @@ process_execute (const char *file_name)
   // >> 여기에 NULL 넣어줬더니 kernel PANIC 떠서 dummyptr 해줌.
 
   // MYCODE_START
+printf(">> in process_execute, token: %s\n", token);
   if (filesys_open (token) == NULL)
     return -1;
   // MYCODE_END
