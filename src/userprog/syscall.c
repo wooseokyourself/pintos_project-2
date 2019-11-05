@@ -39,7 +39,7 @@ syscall_handler (struct intr_frame *f)
 //hex_dump (f->esp, f->esp, 100, 1);
   int *sp = f->esp;
 
-  switch (&sp)
+  switch (*sp)
   {
     case SYS_HALT:                   // args number: 0
       halt ();
