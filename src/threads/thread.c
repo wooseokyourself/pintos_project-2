@@ -100,11 +100,6 @@ thread_init (void)
   initial_thread = running_thread ();
   init_thread (initial_thread, "main", PRI_DEFAULT);
   initial_thread->status = THREAD_RUNNING;
-// MYCODE_START
-#ifdef USERPROG
-  initial_thread->isRun = true;
-#endif
-// MYCODE_END
   initial_thread->tid = allocate_tid ();
 }
 
@@ -226,11 +221,6 @@ thread_block (void)
 
   thread_current ()->status = THREAD_BLOCKED;
   schedule ();
-// MYCODE_START
-#ifdef USERPROG
-  thread_current()->isRun = false;
-#endif
-// MYCODE_END
 }
 
 /* Transitions a blocked thread T to the ready-to-run state.
@@ -325,11 +315,6 @@ thread_yield (void)
   cur->status = THREAD_READY;
   schedule ();
   intr_set_level (old_level);
-// MYCODE_START
-#ifdef USERPROG
-  cur->isRun = false;
-#endif
-// MYCODE_END
 }
 
 /* Invoke function 'func' on all threads, passing along 'aux'.
@@ -497,13 +482,11 @@ init_thread (struct thread *t, const char *name, int priority)
     struct thread *current = thread_current();
     current->child = t;
     t->parent = current;
-    t->isRun = false;
   }
   else
   {
     t->child = NULL;
     t->parent = NULL;
-    t->isRun = false;
   }
 #endif
 // MYCODE_END
@@ -566,10 +549,6 @@ thread_schedule_tail (struct thread *prev)
   thread_ticks = 0;
 
 #ifdef USERPROG
-  // MYCODE_START
-  cur->isRun = true;
-  // MYCODE_END
-
   /* Activate the new address space. */
   process_activate ();
 #endif

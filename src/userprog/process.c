@@ -291,6 +291,25 @@ process_wait (tid_t child_tid)
 //printf("  >> invoking process_wait () !\n");
   struct thread *current = thread_current();
   struct thread *child = current->child;
+  if (child == NULL) 
+    return -1;
+  else
+  {
+    sema_down (&(child->child_lock)); // wait
+    process_wait (child->tid);
+    int exit_code = child->exit_code;
+    child->child = NULL; // remove
+    sema_up (&(child->memory_lock)); // send signal to the parent
+    return exit_code;
+  }
+      /*
+      이를 구현하기 위해, 현재 프로세스(스레드)는 "thread/synch.h"에 정의된
+      void cond_wait (struct condition *, struct lock *)를 통해 자식프로세스의 종료를 기다리고,
+      반대로 자식프로세스는 void cond_signal (struct condition *, struct lock *)
+      를 통해 종료를 알리게 한다.
+       --> 세마포어로 구현함
+      */
+/*
   if (child->tid != child_tid)
   {
 //printf("  >> this pid is not a direct child of current process! return -1\n");
@@ -300,16 +319,10 @@ process_wait (tid_t child_tid)
   {
     if (child->status == THREAD_DYING)
     {
-      if (child->isRun == true)
-      {
 //printf("  >> this pid was terminated by KERNEL!\n");
-        return -1;
-      }
-      else // (child->isRun == false)
-      {
+// or
 //printf("  >> this pid was already terminated by parent!\n");
-        return -1;
-      }
+      return -1;
     }
     else if (child->status == THREAD_BLOCKED) // 이거 조건 부정확함!!!!!!
     {
@@ -318,12 +331,6 @@ process_wait (tid_t child_tid)
     }
     else // SUCCESS
     {
-      /*
-      이를 구현하기 위해, 현재 프로세스(스레드)는 "thread/synch.h"에 정의된
-      void cond_wait (struct condition *, struct lock *)를 통해 자식프로세스의 종료를 기다리고,
-      반대로 자식프로세스는 void cond_signal (struct condition *, struct lock *)
-      를 통해 종료를 알리게 한다.
-      */
       sema_down (&(child->child_lock)); // wait
       child->child = NULL; // remove
       sema_up (&(child->memory_lock)); // send signal to the parent
@@ -331,8 +338,8 @@ process_wait (tid_t child_tid)
     }
     // MYCODE_END
   }
+  */
   /*
-  // This busy-wait loop is for debugging. 
   int i=0;
   int j=0;
   for (i=0; i<1000000000; i++)

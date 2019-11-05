@@ -101,7 +101,6 @@ struct thread
     // MYCODE_START
     struct thread *parent;              /* Parent thread. */
     struct thread *child;               /* Child thread. */
-    bool isRun;                         /* Running status. */
     struct semaphore child_lock;
     struct semaphore memory_lock;
     int exit_code;
