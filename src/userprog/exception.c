@@ -150,7 +150,8 @@ page_fault (struct intr_frame *f)
   user = (f->error_code & PF_U) != 0;
 
   // ASSERT (!is_kernel_vaddr (fault_addr)); << 이렇게 하면 안됨. 아래처럼 해야함.
-  if (!user || is_kernel_vaddr (fault_addr)) // 이부분은 블로그 코드를 참고하였다!
+  // if (!user || is_kernel_vaddr (fault_addr)) // 이부분은 블로그 코드를 참고하였다!
+  if (!user)
   {
 printf(" >> in exception.c detects that user program refers to kernel area!\n");
      exit(-1);
