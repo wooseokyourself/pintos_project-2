@@ -10,40 +10,14 @@
 #include "devices/block.h"
 
 /* These are defined in threads/thread.c */
+/*
 extern struct list opened_file_list;
 extern int file_open_count;
+*/
 
 struct file *getfile (int fd);
 static void syscall_handler (struct intr_frame *f);
 void check_user_vaddr (const void *vaddr);
-
-struct file 
-  {
-    struct inode *inode;        /* File's inode. */
-    off_t pos;                  /* Current position. */
-    bool deny_write;            /* Has file_deny_write() been called? */
-    
-    // MYCODE_START
-    int fd;                     /* fild_open_count. */
-    struct list_elem elem;      /* List element. */
-    // MYCODE_END
-  };
-struct inode_disk
-  {
-    block_sector_t start;               /* First data sector. */
-    off_t length;                       /* File size in bytes. */
-    unsigned magic;                     /* Magic number. */
-    uint32_t unused[125];               /* Not used. */
-  };
-struct inode 
-  {
-    struct list_elem elem;              /* Element in inode list. */
-    block_sector_t sector;              /* Sector number of disk location. */
-    int open_cnt;                       /* Number of openers. */
-    bool removed;                       /* True if deleted, false otherwise. */
-    int deny_write_cnt;                 /* 0: writes ok, >0: deny writes. */
-    struct inode_disk data;             /* Inode content. */
-  };
 
 void
 syscall_init (void) 

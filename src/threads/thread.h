@@ -5,6 +5,7 @@
 #include <list.h>
 #include <stdint.h>
 #include "threads/synch.h"
+#include "filesys/file.h"
 
 /* States in a thread's life cycle. */
 enum thread_status
@@ -104,6 +105,11 @@ struct thread
     struct semaphore child_lock;
     struct semaphore memory_lock;
     int exit_code;
+    struct file *fd[128];
+    /*
+      fd를 file의 포인터로 선언하고 각 fd를 배열의 인덱스로 접근하는 방식은
+      블로그를 참조하였습니다.
+    */
     // MYCODE_END
 #endif
 

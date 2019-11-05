@@ -501,6 +501,8 @@ init_thread (struct thread *t, const char *name, int priority)
 
 // MYCODE_START
 #ifdef USERPROG
+  for (int i=0; i<128; i++)
+    t->fd[i] = NULL;
   sema_init (&(t->child_lock), 0);
   sema_init (&(t->memory_lock), 0);
   if (list_size(&all_list) > 1)
