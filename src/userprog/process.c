@@ -248,7 +248,7 @@ start_process (void *file_name_)
     *(uint32_t *)*esp = 0;
 //printf("  >> push return address finished / free(argv) start\n");
 
-hex_dump (*esp, *esp, 100, 1);  
+//hex_dump (*esp, *esp, 100, 1);  
     free (argv);
 //printf(" >> push_to_esp end!\n");
 // MYCODE_END
