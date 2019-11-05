@@ -117,7 +117,6 @@ exit (int status)
 {
   printf("%s: exit(%d)\n", thread_name(), status);
   // thread_current() -> status = THREAD_DYING; /* 이는 thread_exit() 내에서 처리됨 */
-  thread_current() -> isRun = false;
   thread_current() -> exit_code = status;
   for (int i=3; i<128; i++) 
   {
