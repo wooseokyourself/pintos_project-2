@@ -135,11 +135,7 @@ exit (int status)
 pid_t
 exec (const char *cmd_lime)
 {
-  tid_t result = process_execute();
-  if (result = TID_ERROR)
-    return -1;
-  else
-    return result;
+  return process_execute (cmd_line);
 }
 
 int
