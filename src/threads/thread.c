@@ -37,11 +37,6 @@ static struct thread *initial_thread;
 /* Lock used by allocate_tid(). */
 struct lock tid_lock;
 
-#ifdef USERPROG
-/* Lock used by userprog. */
-struct lock file_lock; // MYCODE
-#endif
-
 /* Stack frame for kernel_thread(). */
 struct kernel_thread_frame 
   {
@@ -481,10 +476,11 @@ init_thread (struct thread *t, const char *name, int priority)
   for (int i=0; i<128; i++)
     t->fd[i] = NULL;
   t->parent = running_thread();
-  list_init (&(t->children));
-  list_push_back (&(running_thread()->children), &(t->child_elem));
   sema_init (&(t->child_lock), 0);
   sema_init (&(t->memory_lock), 0);
+  list_init (&(t->children));
+  list_push_back (&(running_thread()->children), &(t->child_elem));
+
 #endif
 // MYCODE_END
 }

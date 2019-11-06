@@ -24,6 +24,7 @@ void check_user_vaddr (const void *vaddr);
 void
 syscall_init (void) 
 {
+  lock_init (&file_lock);
 //printf("syscall_init START!\n");
   intr_register_int (0x30, 3, INTR_ON, syscall_handler, "syscall");
 //printf("syscall_init END!\n");
