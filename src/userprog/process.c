@@ -334,7 +334,7 @@ process_wait (tid_t child_tid)
   for (iter = list_begin(&(current->children)); iter != list_end(&(current->children)); iter = list_next(iter))
   {
     elem = list_entry (iter, struct thread, child_elem);
-    if (elem->tid == child_tile)
+    if (elem->tid == child_tid)
     {
       sema_down (&(elem->child_lock));
       return_value = elem->exit_code;
