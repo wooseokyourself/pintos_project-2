@@ -308,5 +308,8 @@ struct file
 void
 check_user_vaddr (const void *vaddr)
 {
-  ASSERT(is_user_vaddr(vaddr));
+  // ASSERT(is_user_vaddr(vaddr)); 
+  // 이거 ASSERT로 하면 프로세스가 -1로 종료되지 않아서 테스트케이스 통과 안함
+  if (!is_user_vaddr (vaddr))
+    exit(-1);
 }
