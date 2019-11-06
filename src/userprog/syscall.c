@@ -4,6 +4,7 @@
 #include "threads/interrupt.h"
 #include "threads/thread.h"
 #include "threads/vaddr.h"
+#include "threads/synch.h"
 #include "filesys/filesys.h"
 #include "filesys/file.h"
 #include "filesys/off_t.h"
