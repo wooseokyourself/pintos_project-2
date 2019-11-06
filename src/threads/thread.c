@@ -37,8 +37,10 @@ static struct thread *initial_thread;
 /* Lock used by allocate_tid(). */
 struct lock tid_lock;
 
+#ifdef USERPROG
 /* Lock used by userprog. */
-// struct lock file_lock;
+struct lock file_lock; // MYCODE
+#endif
 
 /* Stack frame for kernel_thread(). */
 struct kernel_thread_frame 
@@ -93,6 +95,9 @@ thread_init (void)
   ASSERT (intr_get_level () == INTR_OFF);
 
   lock_init (&tid_lock);
+#ifdef USERPROG
+  lock_init (&file_lock); // MYCODE
+#endif
   list_init (&ready_list);
   list_init (&all_list);
 
@@ -475,19 +480,11 @@ init_thread (struct thread *t, const char *name, int priority)
 #ifdef USERPROG
   for (int i=0; i<128; i++)
     t->fd[i] = NULL;
+  t->parent = running_thread();
+  list_init (&(t->children));
+  list_push_back (&(running_thread()->children), &(t->child_elem));
   sema_init (&(t->child_lock), 0);
   sema_init (&(t->memory_lock), 0);
-  if (list_size(&all_list) > 1)
-  {
-    struct thread *current = thread_current();
-    current->child = t;
-    t->parent = current;
-  }
-  else
-  {
-    t->child = NULL;
-    t->parent = NULL;
-  }
 #endif
 // MYCODE_END
 }

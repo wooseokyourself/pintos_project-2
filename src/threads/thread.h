@@ -100,9 +100,13 @@ struct thread
     uint32_t *pagedir;                  /* Page directory. */
     // MYCODE_START
     struct thread *parent;              /* Parent thread. */
-    struct thread *child;               /* Child thread. */
+    /* 기존에는 직속 자식스레드만 포인트하도록 했으나, 이를 리스트로 변경하여 모든 자식의자식의... 를 리스트로 갖도록함 */
+    struct list children;               
+    struct list_elem child_elem; 
+
     struct semaphore child_lock;
     struct semaphore memory_lock;
+    
     int exit_code;
     struct file *fd[128];
     /*

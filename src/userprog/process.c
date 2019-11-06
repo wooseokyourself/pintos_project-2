@@ -57,9 +57,18 @@ process_execute (const char *file_name)
   // MYCODE_END
 
   tid = thread_create (token, PRI_DEFAULT, start_process, fn_copy);
-  
   if (tid == TID_ERROR)
     palloc_free_page (fn_copy); 
+  
+  struct thread *current = thread_current();
+  struct list_elem* iter = NULL;
+  struct thread *elem = NULL;
+  for (iter = list_begin(&(current->children)); iter != list_end(&(current->children)); iter = list_next(iter))
+  {
+    elem = list_entry (iter, struct thread, child_elem);
+    if (elem->exit_code == -1)
+      return process_wait (tid);
+  }
   return tid;
 }
 
@@ -290,7 +299,9 @@ process_wait (tid_t child_tid)
   // MYCODE_START
 //printf("  >> invoking process_wait () !\n");
   struct thread *current = thread_current();
-  struct thread *child = current->child;
+  struct list_elem* iter = NULL;
+  struct thread *elem = NULL;
+  int return_value;
       /*
       이를 구현하기 위해, 현재 프로세스(스레드)는 "thread/synch.h"에 정의된
       void cond_wait (struct condition *, struct lock *)를 통해 자식프로세스의 종료를 기다리고,
@@ -298,7 +309,7 @@ process_wait (tid_t child_tid)
       를 통해 종료를 알리게 한다.
        --> 세마포어로 구현함
       */
-
+/*
   if (child->tid != child_tid)
   {
 //printf("  >> this pid is not a direct child of current process! return -1\n");
@@ -318,14 +329,29 @@ process_wait (tid_t child_tid)
 //printf("  >> this pid is already waited!\n");
       return -1;
     }
-    else // SUCCESS
+    else // SUCCESS*/
+    
+  for (iter = list_begin(&(current->children)); iter != list_end(&(current->children)); iter = list_next(iter))
+  {
+    elem = list_entry (iter, struct thread, child_elem);
+    if (elem->tid == child_tile)
     {
-      sema_down (&(child->child_lock)); // wait
-      int exit_code = child->exit_code;
-      child->child = NULL; // remove
-      sema_up (&(child->memory_lock)); // send signal to the parent
-      return exit_code;
+      sema_down (&(elem->child_lock));
+      return_value = elem->exit_code;
+      list_remove (&(elem->child_elem));
+      sema_up (&(elem->memory_lock));
+      return return_value;
     }
+  }
+  return -1;
+
+/* // 스레드가 직속 자식만 포인트할 때
+  sema_down (&(child->child_lock)); // wait
+  int exit_code = child->exit_code;
+  child->child = NULL; // remove
+  sema_up (&(child->memory_lock)); // send signal to the parent
+  return exit_code;
+*/
     // MYCODE_END
   }
   

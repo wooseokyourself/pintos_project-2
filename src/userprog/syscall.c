@@ -15,6 +15,8 @@ extern struct list opened_file_list;
 extern int file_open_count;
 */
 
+extern struct lock file_lock;
+
 struct file *getfile (int fd);
 static void syscall_handler (struct intr_frame *f);
 void check_user_vaddr (const void *vaddr);
@@ -167,6 +169,8 @@ open (const char *file)
 //printf(" SYSCALL: open \n");
   if (file == NULL)
     exit(-1);
+  check_user_vaddr (file);
+  lock_acquire (&file_lock);
   struct file *return_file = filesys_open (file);
   if (return_file == NULL)
     return -1;
@@ -178,13 +182,16 @@ open (const char *file)
       {
         if (strcmp (thread_current()->name, file) == false)
           file_deny_write (return_file);
+
         thread_current()->fd[i] = return_file;
 //printf("  >> filesys_open(file) success, return %d, idx of fd", i);
+        lock_release (&file_lock);
         return i;
       }
     }
 //printf("  >> filesys_open(file) failed ; thread's fd is full, return -1\n");
   }
+  lock_release (&file_lock);
   return -1;
 }
 
@@ -201,6 +208,8 @@ filesize (int fd)
 int
 read (int fd, void *buffer, unsigned size)
 {
+  check_user_vaddr (buffer);
+  lock_acquire (&file_lock);
   if (fd == 0)
   {
     /* input_getc() 를 이용해 키보드 입력을 버퍼에 넣는다. 그리고 입력된 사이즈(bytes)를 리턴한다. */
@@ -210,6 +219,7 @@ read (int fd, void *buffer, unsigned size)
       if ( ( (char *)buffer)[i] == '\0')
         break;
     }
+    lock_release (&file_lock);
     return i;
   }
   else
@@ -218,7 +228,10 @@ read (int fd, void *buffer, unsigned size)
     if (f == NULL)
       exit(-1);
     else
+    {
+      lock_release (&file_lock);
       return file_read (f, buffer, size);
+    }
   }
 }
 
@@ -226,6 +239,8 @@ read (int fd, void *buffer, unsigned size)
 int
 write (int fd, const void *buffer, unsigned size) // 이거 내용 부정확하니까 docs 보고 다시 짜기!!
 {
+  check_user_vaddr (buffer);
+  lock_acquire (&file_lock);
   if (fd == 1)
   {
     /* putbuf() 함수를 이용하여 버퍼의 내용을 콘솔에 입력한다. 이 때에는 필요한 사이즈만큼 반복문을 돌아야 한다. */
@@ -236,11 +251,15 @@ write (int fd, const void *buffer, unsigned size) // 이거 내용 부정확하�
   {
     struct file *f = getfile (fd);
     if (f == NULL)
+    {
+      lock_release (&file_lock);
       exit(-1);
+    }
     if (f->deny_write)
     {
       file_deny_write (f);
     }
+    lock_release (&file_lock);
     return file_write (f, buffer, size);
   }
 }
