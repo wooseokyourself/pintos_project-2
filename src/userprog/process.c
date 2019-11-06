@@ -353,7 +353,7 @@ process_wait (tid_t child_tid)
   return exit_code;
 */
     // MYCODE_END
-  }
+}
   
   /*
   int i=0;
@@ -363,7 +363,7 @@ process_wait (tid_t child_tid)
 
   return -1;
   */
-}
+
 
 /* Free the current process's resources. */
 void
