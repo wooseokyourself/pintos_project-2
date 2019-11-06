@@ -15,7 +15,7 @@ extern struct list opened_file_list;
 extern int file_open_count;
 */
 
-extern struct lock file_lock;
+extern struct lock file_lock; // original is in thread.c
 
 struct file *getfile (int fd);
 static void syscall_handler (struct intr_frame *f);

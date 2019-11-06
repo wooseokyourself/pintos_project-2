@@ -37,6 +37,10 @@ static struct thread *initial_thread;
 /* Lock used by allocate_tid(). */
 struct lock tid_lock;
 
+#ifdef USERPROG
+struct lock file_lock; // MYCODE
+#endif
+
 /* Stack frame for kernel_thread(). */
 struct kernel_thread_frame 
   {
@@ -90,9 +94,6 @@ thread_init (void)
   ASSERT (intr_get_level () == INTR_OFF);
 
   lock_init (&tid_lock);
-#ifdef USERPROG
-  lock_init (&file_lock); // MYCODE
-#endif
   list_init (&ready_list);
   list_init (&all_list);
 
