@@ -56,11 +56,12 @@ process_execute (const char *file_name)
     return -1;
   // MYCODE_END
 
+  struct thread *current = thread_current();
   tid = thread_create (token, PRI_DEFAULT, start_process, fn_copy);
+  sema_down (&current->load_lock);
   if (tid == TID_ERROR)
     palloc_free_page (fn_copy); 
   
-  struct thread *current = thread_current();
   struct list_elem* iter = NULL;
   struct thread *elem = NULL;
   for (iter = list_begin(&(current->children)); iter != list_end(&(current->children)); iter = list_next(iter))
@@ -269,6 +270,7 @@ start_process (void *file_name_)
 
   /* If load failed, quit. */
   palloc_free_page (file_name);
+  sema_up (&thread_current()->parent->load_lock);
   if (!success) 
     thread_exit ();
 
